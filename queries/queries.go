@@ -4,6 +4,7 @@ import (
 	// "encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	// "errors"
 	// "net/http"
@@ -17,10 +18,11 @@ import (
 )
 
 
-type ticket struct {
+type Ticket struct {
 	Ticketid    gocql.UUID `json:"ticketid"`
-	Title       string `json:"title"`
 	Userid    	string `json:"userid"`
+	Serverid	gocql.UUID `json:"serverid"`
+	Title       string `json:"title"`
 	Description string `json:"description"`
 	Reward      string `json:"reward"`
 	Lifespan    int `json:"lifespan"`
@@ -28,17 +30,46 @@ type ticket struct {
 	Archived 	bool `json:"archived"`
 }
 
-type user struct {
-	Userid string
-	Username string
-	Password string
+// type Server struct{
+// 		Serverid gocql.UUID
+// 		Users: [userids],
+// 		Name: ,
+// 		Queuepages: [queuepageid],
+// 		date_created: ,
 
-}
+// 	}
+// type Queuepage struct {
+// 	Queuepageid: ,
+// 	Queues: [queueids],
+// 	sectionname: ,
+// 	queuepagename: ,
+// 	messengers: [messenger, messenger],
+// }
+// type Queue struct {
+// 	Queueid: ,
+// 	Name: ,
+// 	Tickets: [ticketids]
+// }
+// type Messenger struct {
+// 	messengerid: ,
+// 	messages: [message, message],
+// }
+// type Message struct {
+// 	messageid: ,
+// 	userid: ,
+// 	time: ,
+// }
+
+// type User struct {
+// 	Userid string
+// 	Username string
+// 	Password string
+// }
 
 func GetAllTickets(session gocqlx.Session) error {
 
 	var mySlice []string
-	var query = session.Query("SELECT * FROM meed.ticket",mySlice)
+	var query = session.Query("SELECT * FROM meed.ticket", mySlice)
 
     if rows, err := query.Iter().SliceMap(); err == nil {
         for _, row := range rows {
@@ -50,9 +81,9 @@ func GetAllTickets(session gocqlx.Session) error {
 	return nil
 }
 
-func CreateTicketTable(session gocqlx.Session) error {
-	session.ExecStmt(`DROP KEYSPACE meed`)
+func CreateNewServer(session gocqlx.Session) error {
 
+	session.ExecStmt(`DROP KEYSPACE meed`)
 	err := session.ExecStmt(`CREATE KEYSPACE IF NOT EXISTS meed WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 2}`)
 	if err != nil {
 		fmt.Println("create keyspace:", err)
@@ -61,8 +92,9 @@ func CreateTicketTable(session gocqlx.Session) error {
 
 	err = session.ExecStmt(`CREATE TABLE IF NOT EXISTS meed.ticket (
 		ticketid uuid PRIMARY KEY,
-		title text,
+		serverid uuid,
 		userid text,
+		title text,
 		description text,
 		reward text,
 		lifespan int,
@@ -79,10 +111,10 @@ func CreateTicketTable(session gocqlx.Session) error {
 
 func SelectTicketByID(session gocqlx.Session, ticketTable *table.Table, uuid gocql.UUID) {
 	ticketrows := ticketTable.SelectQuery(session)
-	ticketrows.BindStruct(&ticket{
+	ticketrows.BindStruct(&Ticket{
 		Ticketid: uuid,
 	})
-	var tickets []ticket
+	var tickets []Ticket
 
 	if err := ticketrows.Select(&tickets); err != nil {
 		log.Fatal("Select() failed:", err)
@@ -91,42 +123,45 @@ func SelectTicketByID(session gocqlx.Session, ticketTable *table.Table, uuid goc
 	fmt.Println("selected correctly!")
 }
 
-func CreateTicket(session gocqlx.Session) {
+func CreateFakeTicket() Ticket {
+	
+	newTicket := Ticket{}
+	err := faker.FakeData(&newTicket)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return newTicket
+}
+
+func CreateTicket(session gocqlx.Session, newTicket Ticket) {
 
 	insertTicket := qb.Insert("meed.ticket").
 	Columns("ticketid", 
-			"title", 
+			"serverid",
 			"userid", 
+			"title", 
 			"description", 
 			"reward", 
 			"lifespan", 
 			"type", 
 			"archived").Query(session)
 
-	newTicket := ticket{}
-	err := faker.FakeData(&newTicket)
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	insertTicket.BindStruct(newTicket)
-	// insertTicket.BindStruct(ticket{
-	// 	Ticketid: uuid,
-	// 	Title: "this is the insert query",
-	// 	Userid: "johnny",
-	// 	Description: "automatic insert",
-	// 	Reward: "the joy of not having to rewrite this",
-	// 	Lifespan: 5,
-	// 	Type: "service",
-	// 	Archived: false,
-	// })
 
 	if err := insertTicket.ExecRelease(); err != nil {
 		log.Fatal("ExecRelease() failed:", err)
 	}
 }
-
-
+// insertTicket.BindStruct(ticket{
+// 	Ticketid: uuid,
+// 	Title: "this is the insert query",
+// 	Userid: "johnny",
+// 	Description: "automatic insert",
+// 	Reward: "the joy of not having to rewrite this",
+// 	Lifespan: 5,
+// 	Type: "service",
+// 	Archived: false,
+// })
 
 func MustParseUUID(s string) gocql.UUID {
 	u, err := gocql.ParseUUID(s)
@@ -136,30 +171,19 @@ func MustParseUUID(s string) gocql.UUID {
 	return u
 }
 
-func DeleteTicket(session *gocql.Session) error {
-
-	uuid, merr := gocql.ParseUUID("c63e71f0-936e-11ea-bb37-0242ac130002")
-	if merr != nil {
-		log.Fatal(merr)
-	}
-
-	r := ticket {
-		Ticketid: uuid,
-	}
+//Couldn't get Delete cqlx to work; improvised with Delete statement
+func DeleteTicket(session gocqlx.Session, uuid gocql.UUID) error {
 
 	w := qb.EqNamed("ticketid", uuid.String())
-	fmt.Println(uuid.String())
-	stmt, names := qb.Delete("mykeyspace.ticket").From("mykeyspace.ticket").Where(w).ToCql()
-		fmt.Println(stmt, names)
-        q := gocqlx.Query(session.Query(stmt), names).BindStruct(r)
-		defer q.Release()
+	deleteTicket := qb.Delete("meed.ticket").Where(w).Query(session)
 
-		fmt.Println(q)
+	query := strings.ReplaceAll(deleteTicket.Statement(),"?",uuid.String())
 
-        err := q.ExecRelease() 
-		fmt.Println(err)
-        if err != nil {
-            log.Fatal(err)
-        }
+	if err := session.ExecStmt(query); err != nil {
+		log.Fatal("ExecRelease() failed:", err)
+	}
+
+	deleteTicket.Release()
+	// fmt.Println(deleteTicket.Release())
 	return nil
 }
