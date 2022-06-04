@@ -13,7 +13,6 @@ import (
 	// "github.com/gin-gonic/gin"
 	"github.com/gocql/gocql"
 	"github.com/scylladb/gocqlx/v2"
-	// "github.com/scylladb/gocqlx/table"
 )
 
 // var tickets = []ticket{
@@ -98,50 +97,6 @@ func main() {
 	// }
 
 	// var ticketTable = table.New(ticketMetadata)
-
-	// newTicket := queries.Ticket{
-	// 		Ticketid: ticketid,
-	// 		Serverid: serverid,
-	// 		Userid: "johnny",
-	// 		Title: "this is the insert query",
-	// 		Description: "automatic insert",
-	// 		Reward: "the joy of not having to rewrite this",
-	// 		Lifespan: 5,
-	// 		Type: "service",
-	// 		Archived: false,
-	// 		Subtitles: [],
-	// 		Icons: [],
-	// 	}
-	
-	// 	queries.Server{
-	// 		Serverid: serverid,
-	// 		Users: [userids],
-	// 		Name: ,
-	// 		Queuepages: [queuepageid],
-	// 		date_created: ,
-
-	// 	}
-	// 	Queuepage {
-	// 		Queuepageid: ,
-	// 		Queues: [queueids],
-	// 		sectionname: ,
-	// 		queuepagename: ,
-	// 		messengers: [messenger, messenger],
-	// 	}
-	// 	queries.Queue{
-	// 		Queueid: ,
-	// 		Name: ,
-	// 		Tickets: [ticketids]
-	// 	}
-	// 	queries.messenger{
-	// 		messengerid: ,
-	// 		messages: [message, message],
-	// 	}
-	// 	queries.message{
-	// 		messageid: ,
-	// 		userid: ,
-	// 		time: ,
-	// 	}
 
 	queries.CreateNewServer(session)
 	// queries.CreateTicket(session, newTicket)
