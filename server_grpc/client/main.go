@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	pb "github.com/databitio/go_server/server_grpc/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -16,4 +17,7 @@ func main() {
 	}
 	log.Println("connected successfully!")
 	defer conn.Close()
+	c := pb.NewGreetServiceClient(conn)
+
+	doGreet(c)
 }
