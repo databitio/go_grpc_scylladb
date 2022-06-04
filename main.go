@@ -3,9 +3,10 @@ package main
 import (
 	// "encoding/json"
 	// "log"
-	"example/go_server/datatypes"
-	"example/go_server/queries"
 	"fmt"
+
+	"github.com/databitio/go_server/datatypes"
+	"github.com/databitio/go_server/queries"
 
 	// "errors"
 	// "net/http"
@@ -73,9 +74,7 @@ import (
 // 	}
 // 	return
 // }
-
-func main() {
-
+func ConnectToCluster() gocqlx.Session {
 	var cluster = gocql.NewCluster("52.3.213.119", "34.225.225.53", "54.82.189.29")
 	cluster.Authenticator = gocql.PasswordAuthenticator{Username: "scylla", Password: "HubOg2xDLqp6K0E"}
 	cluster.PoolConfig.HostSelectionPolicy = gocql.DCAwareRoundRobinPolicy("AWS_US_EAST_1")
@@ -84,7 +83,12 @@ func main() {
 	if err != nil {
 		panic("Failed to connect to cluster")
 	}
+	return session
+}
 
+func main() {
+
+	session := ConnectToCluster()
 	defer session.Close()
 
 	uuid := queries.MustParseUUID("37612118-3145-0f0e-2919-4b2010292640")
@@ -111,7 +115,7 @@ func main() {
 	// queries.DeleteTicket(session, uuid)
 	queries.CreateTicket(session, newTicket)
 	queries.CreateTicket(session, queries.CreateFakeTicket())
-	tickets, err := queries.GetAllTickets(session)
+	tickets, _ := queries.GetAllTickets(session)
 	fmt.Println(tickets)
 	// fmt.Println("selecting ticket with id 37612118-3145-0f0e-2919-4b2010292640: ")
 	// queries.SelectTicketByID(session, ticketTable, uuid)

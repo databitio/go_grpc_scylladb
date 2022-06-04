@@ -1,0 +1,13 @@
+syntax="proto3";
+
+package proto;
+
+option go_package = "github.com/databitio/go_server/server_grpc/proto";
+
+message Dummy {
+    uint32 id = 1;
+} 
+
+service DummyService {
+    
+}

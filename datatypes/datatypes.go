@@ -16,6 +16,8 @@ type Ticket struct {
 	Lifespan    int        `json:"lifespan"`
 	Type        string     `json:"type"`
 	Archived    bool       `json:"archived"`
+	Status      string     `json:"status"` //in progress, new, etc.
+	Claimed     bool       `json:"claimed"`
 }
 
 type Server struct {

@@ -1,4 +1,4 @@
-module example/go_server
+module github.com/databitio/go_server
 
 go 1.18
 

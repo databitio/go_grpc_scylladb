@@ -9,7 +9,7 @@ import (
 	// "net/http"
 
 	// "github.com/gin-gonic/gin"
-	"example/go_server/datatypes"
+	"github.com/databitio/go_server/datatypes"
 
 	"github.com/bxcodec/faker/v3"
 	"github.com/gocql/gocql"
