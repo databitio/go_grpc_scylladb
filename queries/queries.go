@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	// "errors"
 	// "net/http"
@@ -17,67 +18,75 @@ import (
 	"github.com/scylladb/gocqlx/v2/table"
 )
 
-
 type Ticket struct {
 	Ticketid    gocql.UUID `json:"ticketid"`
-	Userid    	string `json:"userid"`
-	Serverid	gocql.UUID `json:"serverid"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Reward      string `json:"reward"`
-	Lifespan    int `json:"lifespan"`
-	Type        string `json:"type"`
-	Archived 	bool `json:"archived"`
+	Userid      gocql.UUID `json:"userid"`
+	Serverid    gocql.UUID `json:"serverid"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	Reward      string     `json:"reward"`
+	Lifespan    int        `json:"lifespan"`
+	Type        string     `json:"type"`
+	Archived    bool       `json:"archived"`
 }
 
-// type Server struct{
-// 		Serverid gocql.UUID
-// 		Users: [userids],
-// 		Name: ,
-// 		Queuepages: [queuepageid],
-// 		date_created: ,
+type Server struct {
+	Serverid     gocql.UUID   `json:"serverid"`
+	Users        []gocql.UUID `json:"users"` //userids
+	Name         string       `json:"name"`
+	Queuepages   []Queuepage  `json:"queuepages"` //queuepageid
+	Date_created time.Time    `json:"date_created"`
+}
+type Queuepage struct {
+	Queuepageid  int         `json:"queuepageid"`
+	Queues       []Queue     `json:"queues"` //[queueids],
+	Section_name string      `json:"section_name"`
+	Name         string      `json:"name"`
+	Messengers   []Messenger `json:"messengers"` //[messenger, messenger],
+}
+type Queue struct {
+	Queueid int          `json:"queueid"`
+	Name    string       `json:"name"`
+	Tickets []gocql.UUID `json:"tickets"` //[ticketids]
+}
+type Messenger struct {
+	Messengerid int          `json:"messengerid"`
+	Name        string       `json:"name"`
+	Messages    []gocql.UUID `json:"messages"` //[message, message]
+}
+type Message struct {
+	Messageid gocql.UUID `json:"messageid"`
+	Userid    gocql.UUID `json:"userid"`
+	Content   string     `json:"content"`
+	Date      time.Time  `json:"date"`
+}
 
-// 	}
-// type Queuepage struct {
-// 	Queuepageid: ,
-// 	Queues: [queueids],
-// 	sectionname: ,
-// 	queuepagename: ,
-// 	messengers: [messenger, messenger],
-// }
-// type Queue struct {
-// 	Queueid: ,
-// 	Name: ,
-// 	Tickets: [ticketids]
-// }
-// type Messenger struct {
-// 	messengerid: ,
-// 	messages: [message, message],
-// }
-// type Message struct {
-// 	messageid: ,
-// 	userid: ,
-// 	time: ,
-// }
+type User struct {
+	Userid       gocql.UUID   `json:"userid"`
+	Username     string       `json:"username"`
+	Password     string       `json:"password"`
+	Date_created time.Time    `json:"date_created"`
+	Subscription Subscription `json:"subscription"`
+}
 
-// type User struct {
-// 	Userid string
-// 	Username string
-// 	Password string
-// }
+type Subscription struct {
+	Active       bool      `json:"active"`
+	Type         string    `json:"type"`
+	Renewal_date time.Time `json:"renewal_date"`
+}
 
 func GetAllTickets(session gocqlx.Session) error {
 
 	var mySlice []string
 	var query = session.Query("SELECT * FROM meed.ticket", mySlice)
 
-    if rows, err := query.Iter().SliceMap(); err == nil {
-        for _, row := range rows {
-            fmt.Printf("%v\n", row)
-        }
-    } else {
-        panic("Query error: " + err.Error())
-    }
+	if rows, err := query.Iter().SliceMap(); err == nil {
+		for _, row := range rows {
+			fmt.Printf("%v\n", row)
+		}
+	} else {
+		panic("Query error: " + err.Error())
+	}
 	return nil
 }
 
@@ -124,7 +133,7 @@ func SelectTicketByID(session gocqlx.Session, ticketTable *table.Table, uuid goc
 }
 
 func CreateFakeTicket() Ticket {
-	
+
 	newTicket := Ticket{}
 	err := faker.FakeData(&newTicket)
 	if err != nil {
@@ -136,14 +145,14 @@ func CreateFakeTicket() Ticket {
 func CreateTicket(session gocqlx.Session, newTicket Ticket) {
 
 	insertTicket := qb.Insert("meed.ticket").
-	Columns("ticketid", 
+		Columns("ticketid",
 			"serverid",
-			"userid", 
-			"title", 
-			"description", 
-			"reward", 
-			"lifespan", 
-			"type", 
+			"userid",
+			"title",
+			"description",
+			"reward",
+			"lifespan",
+			"type",
 			"archived").Query(session)
 
 	insertTicket.BindStruct(newTicket)
@@ -152,6 +161,7 @@ func CreateTicket(session gocqlx.Session, newTicket Ticket) {
 		log.Fatal("ExecRelease() failed:", err)
 	}
 }
+
 // insertTicket.BindStruct(ticket{
 // 	Ticketid: uuid,
 // 	Title: "this is the insert query",
@@ -177,7 +187,7 @@ func DeleteTicket(session gocqlx.Session, uuid gocql.UUID) error {
 	w := qb.EqNamed("ticketid", uuid.String())
 	deleteTicket := qb.Delete("meed.ticket").Where(w).Query(session)
 
-	query := strings.ReplaceAll(deleteTicket.Statement(),"?",uuid.String())
+	query := strings.ReplaceAll(deleteTicket.Statement(), "?", uuid.String())
 
 	if err := session.ExecStmt(query); err != nil {
 		log.Fatal("ExecRelease() failed:", err)
