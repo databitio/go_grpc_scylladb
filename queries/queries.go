@@ -4,7 +4,6 @@ import (
 	// "encoding/json"
 	"fmt"
 	"log"
-	"strings"
 
 	// "errors"
 	// "net/http"
@@ -19,19 +18,49 @@ import (
 	"github.com/scylladb/gocqlx/v2/table"
 )
 
-func GetAllTickets(session gocqlx.Session) error {
+//perhaps future cqlx session object
+type Gosess struct {
+	Session gocqlx.Session
+}
 
-	var mySlice []string
-	var query = session.Query("SELECT * FROM meed.ticket", mySlice)
+//*************************************************************************
+//Metadata and create table used to filter data
+func CreateTicketMetadata() table.Metadata {
+	ticketMetadata := table.Metadata{
+		Name:    "meed.ticket",
+		Columns: []string{"ticketid", "title", "userid", "description", "reward", "lifespan", "type", "archived"},
+		PartKey: []string{"ticketid"},
+		SortKey: []string{"userid"},
+	}
+	return ticketMetadata
+}
 
-	if rows, err := query.Iter().SliceMap(); err == nil {
-		for _, row := range rows {
-			fmt.Printf("%v\n", row)
-		}
+func CreateTable(metadata table.Metadata) *table.Table {
+	return table.New(metadata)
+}
+
+//*************************************************************************
+func GetByID(session gocqlx.Session, uuid gocql.UUID) (map[string]interface{}, error) {
+	w := qb.EqNamed("ticketid", "")
+	q := qb.Select("meed.ticket").Where(w).Query(session).Bind(uuid.String())
+
+	rows, err := q.Iter().SliceMap()
+	if err != nil {
+		fmt.Println("Query error: " + err.Error())
+	}
+	return rows[0], err
+}
+
+func GetAllTickets(session gocqlx.Session) ([]map[string]interface{}, error) {
+
+	q := qb.Select("meed.ticket").Query(session)
+
+	rows, err := q.Iter().SliceMap()
+	if err == nil {
+		return rows, nil
 	} else {
 		panic("Query error: " + err.Error())
 	}
-	return nil
 }
 
 func CreateNewServer(session gocqlx.Session) error {
@@ -44,7 +73,7 @@ func CreateNewServer(session gocqlx.Session) error {
 	}
 
 	err = session.ExecStmt(`CREATE TABLE IF NOT EXISTS meed.ticket (
-		ticketid uuid PRIMARY KEY,
+		ticketid uuid,
 		userid uuid,
 		serverid uuid,
 		title text,
@@ -52,7 +81,8 @@ func CreateNewServer(session gocqlx.Session) error {
 		reward text,
 		lifespan int,
 		type text,
-		archived boolean
+		archived boolean,
+		PRIMARY KEY (ticketid, userid)
 		)`)
 	if err != nil {
 		fmt.Println("create table:", err)
@@ -62,7 +92,7 @@ func CreateNewServer(session gocqlx.Session) error {
 	return nil
 }
 
-func SelectTicketByID(session gocqlx.Session, ticketTable *table.Table, uuid gocql.UUID) {
+func SelectTicketByLocalID(session gocqlx.Session, ticketTable *table.Table, uuid gocql.UUID) {
 	ticketrows := ticketTable.SelectQuery(session)
 	ticketrows.BindStruct(&datatypes.Ticket{
 		Ticketid: uuid,
@@ -100,7 +130,6 @@ func CreateTicket(session gocqlx.Session, newTicket datatypes.Ticket) {
 			"archived").Query(session)
 
 	insertTicket.BindStruct(newTicket)
-	fmt.Println(insertTicket)
 
 	if err := insertTicket.ExecRelease(); err != nil {
 		log.Fatal("ExecRelease() failed:", err)
@@ -130,15 +159,13 @@ func MustParseUUID(s string) gocql.UUID {
 func DeleteTicket(session gocqlx.Session, uuid gocql.UUID) error {
 
 	w := qb.EqNamed("ticketid", uuid.String())
-	deleteTicket := qb.Delete("meed.ticket").Where(w).Query(session)
+	deleteTicket := qb.Delete("meed.ticket").Where(w).Query(session).Bind(uuid.String())
 
-	query := strings.ReplaceAll(deleteTicket.Statement(), "?", uuid.String())
-
-	if err := session.ExecStmt(query); err != nil {
+	if err := deleteTicket.ExecRelease(); err != nil {
 		log.Fatal("ExecRelease() failed:", err)
+		return err
 	}
 
-	deleteTicket.Release()
-	// fmt.Println(deleteTicket.Release())
+	fmt.Println("deleted successfully!")
 	return nil
 }

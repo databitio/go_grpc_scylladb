@@ -2,8 +2,8 @@ package main
 
 import (
 	// "encoding/json"
-	// "fmt"
 	// "log"
+	"example/go_server/datatypes"
 	"example/go_server/queries"
 	"fmt"
 
@@ -87,24 +87,32 @@ func main() {
 
 	defer session.Close()
 
-	ticketid, _ := gocql.RandomUUID()
-	// serverid, _ := gocql.RandomUUID()
-	// ticketMetadata := table.Metadata{
-	// 	Name:    "meed.ticket",
-	// 	Columns: []string{"ticketid", "title", "userid", "description", "reward", "lifespan", "type", "archived"},
-	// 	PartKey: []string{"ticketid"},
-	// 	SortKey: []string{"userid"},
-	// }
+	uuid := queries.MustParseUUID("37612118-3145-0f0e-2919-4b2010292640")
+	newTicket := datatypes.Ticket{
+		Ticketid:    uuid,
+		Serverid:    uuid,
+		Userid:      uuid,
+		Title:       "this is the insert query",
+		Description: "automatic insert",
+		Reward:      "the joy of not having to rewrite this",
+		Lifespan:    5,
+		Type:        "service",
+		Archived:    false,
+	}
 
-	// var ticketTable = table.New(ticketMetadata)
+	// ticketid, _ := gocql.RandomUUID()
 
+	// ticketTable := queries.CreateTable(queries.CreateTicketMetadata())
 	queries.CreateNewServer(session)
-	// queries.CreateTicket(session, newTicket)
+	// queries.CreateTicket(session, queries.CreateFakeTicket())
+	// fmt.Println("added")
+	// thisticket, _ := queries.GetByID(session, uuid)
+	// fmt.Println(thisticket)
+	// queries.DeleteTicket(session, uuid)
+	queries.CreateTicket(session, newTicket)
 	queries.CreateTicket(session, queries.CreateFakeTicket())
-	fmt.Println("added")
-	queries.GetAllTickets(session)
-	fmt.Println("subtracting...")
-	queries.DeleteTicket(session, ticketid)
-	queries.GetAllTickets(session)
-	// selectTicketByID(session, uuid)
+	tickets, err := queries.GetAllTickets(session)
+	fmt.Println(tickets)
+	// fmt.Println("selecting ticket with id 37612118-3145-0f0e-2919-4b2010292640: ")
+	// queries.SelectTicketByID(session, ticketTable, uuid)
 }
