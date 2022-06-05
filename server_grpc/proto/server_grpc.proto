@@ -4,6 +4,8 @@ package server_grpc;
 
 option go_package = "github.com/databitio/go_server/server_grpc/proto";
 
+// import "example.proto";
+
 message GreetRequest {
     string first_name = 1;
 } 
@@ -14,4 +16,5 @@ message GreetResponse {
 
 service GreetService {
     rpc Greet (GreetRequest) returns (GreetResponse);
+    rpc GreetManyTimes (GreetRequest) returns (stream GreetResponse);
 }
