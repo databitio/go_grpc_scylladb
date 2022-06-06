@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/databitio/go_server/queries"
@@ -20,6 +19,5 @@ func (s *Server) GetTicket(ctx context.Context, in *pb.TicketID) (*pb.TicketInfo
 	}
 
 	ticketInfo := ticketToTicketMessage(&selectedTicket)
-	fmt.Println(ticketInfo)
 	return ticketInfo, nil
 }

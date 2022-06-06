@@ -42,10 +42,6 @@ func CreateTable(metadata table.Metadata) *table.Table {
 
 func DBToTicket(ticket map[string]interface{}) (datatypes.Ticket, error) {
 
-	for index, val := range ticket {
-		fmt.Println(index, val)
-	}
-
 	newTicket := &datatypes.Ticket{
 		Ticketid:    ticket["ticketid"].(gocql.UUID),
 		Userid:      ticket["userid"].(gocql.UUID),
@@ -79,6 +75,8 @@ func GetByID(session gocqlx.Session, uuid gocql.UUID) (datatypes.Ticket, error) 
 func GetAllTickets(session gocqlx.Session) ([]datatypes.Ticket, error) {
 
 	q := qb.Select("meed.ticket").Query(session)
+
+	defer q.Release()
 
 	var tickets []datatypes.Ticket
 	if rows, err := q.Iter().SliceMap(); err == nil {

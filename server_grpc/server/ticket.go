@@ -20,3 +20,4 @@ func ticketToTicketMessage(data *datatypes.Ticket) *pb.TicketInfo {
 		Claimed:     data.Claimed,
 	}
 }
+

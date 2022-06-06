@@ -20,5 +20,7 @@ func main() {
 	c := pb.NewTicketServiceClient(conn)
 
 	newTicket := goGetTicket(c, "44573233-4c12-1d06-2c63-0910604a1816")
-	log.Println(newTicket)
+	readTickets(c)
+
+	log.Println(newTicket.Claimed)
 }
