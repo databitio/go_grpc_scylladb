@@ -4,17 +4,30 @@ package server_grpc;
 
 option go_package = "github.com/databitio/go_server/server_grpc/proto";
 
-// import "example.proto";
+import "google/protobuf/empty.proto";
 
-message GreetRequest {
-    string first_name = 1;
-} 
-
-message GreetResponse {
-    string result = 1;
+message TicketInfo {
+    string Ticketid = 1;
+	string Userid = 2;
+	string Serverid = 3;
+	string Title = 4;
+	string Description = 5;  
+	string Reward = 6;
+	string Lifespan = 7;
+	string Type = 8;
+	bool Archived = 9;
+	string Status = 10;
+	bool Claimed = 11;
 }
 
-service GreetService {
-    rpc Greet (GreetRequest) returns (GreetResponse);
-    rpc GreetManyTimes (GreetRequest) returns (stream GreetResponse);
+message TicketID {
+    string Result = 1;
+}
+
+service TicketService {
+    rpc CreateTicket (TicketInfo) returns (TicketID);
+    rpc ReadTickets (google.protobuf.Empty) returns (stream TicketInfo);
+    rpc GetTicket (TicketID) returns (TicketInfo);
+    rpc UpdateTicket (TicketInfo) returns (google.protobuf.Empty);
+    rpc DeleteTicket (TicketID) returns (google.protobuf.Empty);
 }

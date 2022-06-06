@@ -4,6 +4,7 @@ import (
 	// "encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	// "errors"
 	// "net/http"
@@ -39,8 +40,31 @@ func CreateTable(metadata table.Metadata) *table.Table {
 	return table.New(metadata)
 }
 
+func DBToTicket(ticket map[string]interface{}) (datatypes.Ticket, error) {
+
+	for index, val := range ticket {
+		fmt.Println(index, val)
+	}
+
+	newTicket := &datatypes.Ticket{
+		Ticketid:    ticket["ticketid"].(gocql.UUID),
+		Userid:      ticket["userid"].(gocql.UUID),
+		Serverid:    ticket["serverid"].(gocql.UUID),
+		Title:       ticket["title"].(string),
+		Description: ticket["description"].(string),
+		Reward:      ticket["reward"].(string),
+		Lifespan:    ticket["lifespan"].(time.Time),
+		Type:        ticket["type"].(string),
+		Archived:    ticket["archived"].(bool),
+		Status:      ticket["status"].(string),
+		Claimed:     ticket["claimed"].(bool),
+	}
+
+	return *newTicket, nil
+}
+
 //*************************************************************************
-func GetByID(session gocqlx.Session, uuid gocql.UUID) (map[string]interface{}, error) {
+func GetByID(session gocqlx.Session, uuid gocql.UUID) (datatypes.Ticket, error) {
 	w := qb.EqNamed("ticketid", "")
 	q := qb.Select("meed.ticket").Where(w).Query(session).Bind(uuid.String())
 
@@ -48,19 +72,24 @@ func GetByID(session gocqlx.Session, uuid gocql.UUID) (map[string]interface{}, e
 	if err != nil {
 		fmt.Println("Query error: " + err.Error())
 	}
-	return rows[0], err
+	ticket, err := DBToTicket(rows[0])
+	return ticket, err
 }
 
-func GetAllTickets(session gocqlx.Session) ([]map[string]interface{}, error) {
+func GetAllTickets(session gocqlx.Session) ([]datatypes.Ticket, error) {
 
 	q := qb.Select("meed.ticket").Query(session)
 
-	rows, err := q.Iter().SliceMap()
-	if err == nil {
-		return rows, nil
-	} else {
-		panic("Query error: " + err.Error())
+	var tickets []datatypes.Ticket
+	if rows, err := q.Iter().SliceMap(); err == nil {
+		for _, row := range rows {
+			ticket, err := DBToTicket(row)
+			if err == nil {
+				tickets = append(tickets, ticket)
+			}
+		}
 	}
+	return tickets, nil
 }
 
 func CreateNewServer(session gocqlx.Session) error {
@@ -79,9 +108,11 @@ func CreateNewServer(session gocqlx.Session) error {
 		title text,
 		description text,
 		reward text,
-		lifespan int,
+		lifespan date,
 		type text,
 		archived boolean,
+		status text,
+		claimed boolean,
 		PRIMARY KEY (ticketid, userid)
 		)`)
 	if err != nil {

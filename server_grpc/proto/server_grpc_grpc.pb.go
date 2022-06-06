@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -18,37 +19,40 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// GreetServiceClient is the client API for GreetService service.
+// TicketServiceClient is the client API for TicketService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type GreetServiceClient interface {
-	Greet(ctx context.Context, in *GreetRequest, opts ...grpc.CallOption) (*GreetResponse, error)
-	GreetManyTimes(ctx context.Context, in *GreetRequest, opts ...grpc.CallOption) (GreetService_GreetManyTimesClient, error)
+type TicketServiceClient interface {
+	CreateTicket(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*TicketID, error)
+	ReadTickets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (TicketService_ReadTicketsClient, error)
+	GetTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*TicketInfo, error)
+	UpdateTicket(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
-type greetServiceClient struct {
+type ticketServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewGreetServiceClient(cc grpc.ClientConnInterface) GreetServiceClient {
-	return &greetServiceClient{cc}
+func NewTicketServiceClient(cc grpc.ClientConnInterface) TicketServiceClient {
+	return &ticketServiceClient{cc}
 }
 
-func (c *greetServiceClient) Greet(ctx context.Context, in *GreetRequest, opts ...grpc.CallOption) (*GreetResponse, error) {
-	out := new(GreetResponse)
-	err := c.cc.Invoke(ctx, "/server_grpc.GreetService/Greet", in, out, opts...)
+func (c *ticketServiceClient) CreateTicket(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*TicketID, error) {
+	out := new(TicketID)
+	err := c.cc.Invoke(ctx, "/server_grpc.TicketService/CreateTicket", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *greetServiceClient) GreetManyTimes(ctx context.Context, in *GreetRequest, opts ...grpc.CallOption) (GreetService_GreetManyTimesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &GreetService_ServiceDesc.Streams[0], "/server_grpc.GreetService/GreetManyTimes", opts...)
+func (c *ticketServiceClient) ReadTickets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (TicketService_ReadTicketsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &TicketService_ServiceDesc.Streams[0], "/server_grpc.TicketService/ReadTickets", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &greetServiceGreetManyTimesClient{stream}
+	x := &ticketServiceReadTicketsClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -58,110 +62,215 @@ func (c *greetServiceClient) GreetManyTimes(ctx context.Context, in *GreetReques
 	return x, nil
 }
 
-type GreetService_GreetManyTimesClient interface {
-	Recv() (*GreetResponse, error)
+type TicketService_ReadTicketsClient interface {
+	Recv() (*TicketInfo, error)
 	grpc.ClientStream
 }
 
-type greetServiceGreetManyTimesClient struct {
+type ticketServiceReadTicketsClient struct {
 	grpc.ClientStream
 }
 
-func (x *greetServiceGreetManyTimesClient) Recv() (*GreetResponse, error) {
-	m := new(GreetResponse)
+func (x *ticketServiceReadTicketsClient) Recv() (*TicketInfo, error) {
+	m := new(TicketInfo)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-// GreetServiceServer is the server API for GreetService service.
-// All implementations must embed UnimplementedGreetServiceServer
+func (c *ticketServiceClient) GetTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*TicketInfo, error) {
+	out := new(TicketInfo)
+	err := c.cc.Invoke(ctx, "/server_grpc.TicketService/GetTicket", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ticketServiceClient) UpdateTicket(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/server_grpc.TicketService/UpdateTicket", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ticketServiceClient) DeleteTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/server_grpc.TicketService/DeleteTicket", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// TicketServiceServer is the server API for TicketService service.
+// All implementations must embed UnimplementedTicketServiceServer
 // for forward compatibility
-type GreetServiceServer interface {
-	Greet(context.Context, *GreetRequest) (*GreetResponse, error)
-	GreetManyTimes(*GreetRequest, GreetService_GreetManyTimesServer) error
-	mustEmbedUnimplementedGreetServiceServer()
+type TicketServiceServer interface {
+	CreateTicket(context.Context, *TicketInfo) (*TicketID, error)
+	ReadTickets(*emptypb.Empty, TicketService_ReadTicketsServer) error
+	GetTicket(context.Context, *TicketID) (*TicketInfo, error)
+	UpdateTicket(context.Context, *TicketInfo) (*emptypb.Empty, error)
+	DeleteTicket(context.Context, *TicketID) (*emptypb.Empty, error)
+	mustEmbedUnimplementedTicketServiceServer()
 }
 
-// UnimplementedGreetServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedGreetServiceServer struct {
+// UnimplementedTicketServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedTicketServiceServer struct {
 }
 
-func (UnimplementedGreetServiceServer) Greet(context.Context, *GreetRequest) (*GreetResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Greet not implemented")
+func (UnimplementedTicketServiceServer) CreateTicket(context.Context, *TicketInfo) (*TicketID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTicket not implemented")
 }
-func (UnimplementedGreetServiceServer) GreetManyTimes(*GreetRequest, GreetService_GreetManyTimesServer) error {
-	return status.Errorf(codes.Unimplemented, "method GreetManyTimes not implemented")
+func (UnimplementedTicketServiceServer) ReadTickets(*emptypb.Empty, TicketService_ReadTicketsServer) error {
+	return status.Errorf(codes.Unimplemented, "method ReadTickets not implemented")
 }
-func (UnimplementedGreetServiceServer) mustEmbedUnimplementedGreetServiceServer() {}
+func (UnimplementedTicketServiceServer) GetTicket(context.Context, *TicketID) (*TicketInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTicket not implemented")
+}
+func (UnimplementedTicketServiceServer) UpdateTicket(context.Context, *TicketInfo) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateTicket not implemented")
+}
+func (UnimplementedTicketServiceServer) DeleteTicket(context.Context, *TicketID) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTicket not implemented")
+}
+func (UnimplementedTicketServiceServer) mustEmbedUnimplementedTicketServiceServer() {}
 
-// UnsafeGreetServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to GreetServiceServer will
+// UnsafeTicketServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TicketServiceServer will
 // result in compilation errors.
-type UnsafeGreetServiceServer interface {
-	mustEmbedUnimplementedGreetServiceServer()
+type UnsafeTicketServiceServer interface {
+	mustEmbedUnimplementedTicketServiceServer()
 }
 
-func RegisterGreetServiceServer(s grpc.ServiceRegistrar, srv GreetServiceServer) {
-	s.RegisterService(&GreetService_ServiceDesc, srv)
+func RegisterTicketServiceServer(s grpc.ServiceRegistrar, srv TicketServiceServer) {
+	s.RegisterService(&TicketService_ServiceDesc, srv)
 }
 
-func _GreetService_Greet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GreetRequest)
+func _TicketService_CreateTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TicketInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GreetServiceServer).Greet(ctx, in)
+		return srv.(TicketServiceServer).CreateTicket(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/server_grpc.GreetService/Greet",
+		FullMethod: "/server_grpc.TicketService/CreateTicket",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GreetServiceServer).Greet(ctx, req.(*GreetRequest))
+		return srv.(TicketServiceServer).CreateTicket(ctx, req.(*TicketInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GreetService_GreetManyTimes_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(GreetRequest)
+func _TicketService_ReadTickets_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(emptypb.Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(GreetServiceServer).GreetManyTimes(m, &greetServiceGreetManyTimesServer{stream})
+	return srv.(TicketServiceServer).ReadTickets(m, &ticketServiceReadTicketsServer{stream})
 }
 
-type GreetService_GreetManyTimesServer interface {
-	Send(*GreetResponse) error
+type TicketService_ReadTicketsServer interface {
+	Send(*TicketInfo) error
 	grpc.ServerStream
 }
 
-type greetServiceGreetManyTimesServer struct {
+type ticketServiceReadTicketsServer struct {
 	grpc.ServerStream
 }
 
-func (x *greetServiceGreetManyTimesServer) Send(m *GreetResponse) error {
+func (x *ticketServiceReadTicketsServer) Send(m *TicketInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-// GreetService_ServiceDesc is the grpc.ServiceDesc for GreetService service.
+func _TicketService_GetTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TicketID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TicketServiceServer).GetTicket(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server_grpc.TicketService/GetTicket",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TicketServiceServer).GetTicket(ctx, req.(*TicketID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TicketService_UpdateTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TicketInfo)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TicketServiceServer).UpdateTicket(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server_grpc.TicketService/UpdateTicket",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TicketServiceServer).UpdateTicket(ctx, req.(*TicketInfo))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TicketService_DeleteTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TicketID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TicketServiceServer).DeleteTicket(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server_grpc.TicketService/DeleteTicket",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TicketServiceServer).DeleteTicket(ctx, req.(*TicketID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// TicketService_ServiceDesc is the grpc.ServiceDesc for TicketService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var GreetService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "server_grpc.GreetService",
-	HandlerType: (*GreetServiceServer)(nil),
+var TicketService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "server_grpc.TicketService",
+	HandlerType: (*TicketServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Greet",
-			Handler:    _GreetService_Greet_Handler,
+			MethodName: "CreateTicket",
+			Handler:    _TicketService_CreateTicket_Handler,
+		},
+		{
+			MethodName: "GetTicket",
+			Handler:    _TicketService_GetTicket_Handler,
+		},
+		{
+			MethodName: "UpdateTicket",
+			Handler:    _TicketService_UpdateTicket_Handler,
+		},
+		{
+			MethodName: "DeleteTicket",
+			Handler:    _TicketService_DeleteTicket_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "GreetManyTimes",
-			Handler:       _GreetService_GreetManyTimes_Handler,
+			StreamName:    "ReadTickets",
+			Handler:       _TicketService_ReadTickets_Handler,
 			ServerStreams: true,
 		},
 	},

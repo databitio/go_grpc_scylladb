@@ -13,7 +13,7 @@ type Ticket struct {
 	Title       string     `json:"title"`
 	Description string     `json:"description"`
 	Reward      string     `json:"reward"`
-	Lifespan    int        `json:"lifespan"`
+	Lifespan    time.Time  `json:"lifespan"`
 	Type        string     `json:"type"`
 	Archived    bool       `json:"archived"`
 	Status      string     `json:"status"` //in progress, new, etc.

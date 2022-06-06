@@ -13,12 +13,12 @@ var addr string = "localhost:50051"
 func main() {
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatalf("Failsed to connect: %v\n", err)
+		log.Fatalf("Failed to connect: %v\n", err)
 	}
 	log.Println("connected successfully!")
 	defer conn.Close()
-	c := pb.NewGreetServiceClient(conn)
+	c := pb.NewTicketServiceClient(conn)
 
-	// doGreet(c)
-	doGreetManyTimes(c)
+	newTicket := goGetTicket(c, "44573233-4c12-1d06-2c63-0910604a1816")
+	log.Println(newTicket)
 }

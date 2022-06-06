@@ -2,11 +2,9 @@ package main
 
 import (
 	// "encoding/json"
-	// "log"
-	"fmt"
+	// "fmt"
 	"log"
 
-	pb "github.com/databitio/go_server/server_grpc/proto"
 	"google.golang.org/grpc"
 
 	// "github.com/databitio/go_server/datatypes"
@@ -17,6 +15,10 @@ import (
 	// "net/http"
 
 	// "github.com/gin-gonic/gin"
+
+	"fmt"
+
+	pb "github.com/databitio/go_server/server_grpc/proto"
 	"github.com/gocql/gocql"
 	"github.com/scylladb/gocqlx/v2"
 )
@@ -79,6 +81,7 @@ import (
 // 	}
 // 	return
 // }
+
 func ConnectToCluster() gocqlx.Session {
 	var cluster = gocql.NewCluster("52.3.213.119", "34.225.225.53", "54.82.189.29")
 	cluster.Authenticator = gocql.PasswordAuthenticator{Username: "scylla", Password: "HubOg2xDLqp6K0E"}
@@ -88,16 +91,35 @@ func ConnectToCluster() gocqlx.Session {
 	if err != nil {
 		panic("Failed to connect to cluster")
 	}
+	fmt.Println("Connected to DB!")
 	return session
 }
 
 var addr string = "0.0.0.0:50051"
 
+// var addr string = "localhost:50051"
+
 type Server struct {
-	pb.GreetServiceServer
+	pb.TicketServiceServer
 }
 
+var session gocqlx.Session = ConnectToCluster()
+
 func main() {
+
+	// queries.CreateNewServer(session)
+	// fmt.Println("Connected to server!")
+	// queries.CreateTicket(session, queries.CreateFakeTicket())
+	// queries.CreateTicket(session, queries.CreateFakeTicket())
+	// queries.CreateTicket(session, queries.CreateFakeTicket())
+	// fmt.Println("Added tickets!")
+
+	// alltickets, err := queries.GetAllTickets(session)
+	// if err != nil {
+	// 	log.Fatalf("Getalltickets failed: %v\n", err)
+	// }
+	// fmt.Println(alltickets)
+	// fmt.Println("\n", alltickets[0])
 
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -107,15 +129,12 @@ func main() {
 	fmt.Printf("Listening on %s\n", addr)
 
 	s := grpc.NewServer()
-	pb.RegisterGreetServiceServer(s, &Server{})
+	pb.RegisterTicketServiceServer(s, &Server{})
 
+	defer session.Close()
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v\n", err)
 	}
-
-	session := ConnectToCluster()
-	defer session.Close()
-
 }
 
 // uuid := queries.MustParseUUID("37612118-3145-0f0e-2919-4b2010292640")
