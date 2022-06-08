@@ -54,21 +54,42 @@ func main() {
 		Claimed:     false,
 	}
 
-	fmt.Println("ticket conversion begin...")
 	ticketinfo := ticketToTicketMessage(&newTicket)
-	fmt.Println(ticketinfo)
 
+	fmt.Println("Reading all tickets...")
 	alltickets := readTickets(c)
 	for index, ticket := range alltickets {
 		fmt.Println(index, *ticketMessageToTicket(ticket))
 	}
-	// myticket := goGetTicket(c, "44573233-4c12-1d06-2c63-0910604a1816")
-	// res, err := goUpdateTicket(c, ticketinfo)
+	fmt.Println("Getting ticket by id...")
+	myticket := goGetTicket(c, "44573233-4c12-1d06-2c63-0910604a1816")
+	fmt.Printf("Ticket found!: %v\n", myticket)
+	newTicket.Title = "this is the updated title! hooray!"
+	fmt.Println("Updating this tickets title...")
+	ticketinfo = ticketToTicketMessage(&newTicket)
+	_, err = goUpdateTicket(c, ticketinfo)
 	if err != nil {
 		fmt.Printf("Error updating ticket: %v\n", err)
 	}
-	// goCreateTicket(c, ticketinfo)
-	// res, err := goDeleteTicket(c, "44573233-4c12-1d06-2c63-555555555555")
+	fmt.Println("Ticket updated successfully!")
+	myticket = goGetTicket(c, "44573233-4c12-1d06-2c63-0910604a1816")
+	fmt.Printf("New ticket: %v\n", myticket)
+	fmt.Println("Deleting this ticket from db...")
+	err = goDeleteTicket(c, "44573233-4c12-1d06-2c63-0910604a1816")
+	if err != nil {
+		fmt.Printf("Error deleting ticket: %v\n", err)
+	}
+	fmt.Println("Delete success! Printing out all tickets...")
+	alltickets = readTickets(c)
+	for index, ticket := range alltickets {
+		fmt.Println(index, *ticketMessageToTicket(ticket))
+	}
+	fmt.Println("Adding ticket back to database...")
+	err = goCreateTicket(c, ticketinfo)
+	if err != nil {
+		fmt.Printf("Creating deleting ticket: %v\n", err)
+	}
+	fmt.Println("Successfully added ticket! Shutting down...")
 	// readTickets(c)
 	// fmt.Println(myticket)
 }

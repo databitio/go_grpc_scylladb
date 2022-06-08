@@ -7,14 +7,24 @@ import (
 
 	// "github.com/databitio/go_server/queries"
 	pb "github.com/databitio/go_server/server_grpc/proto"
+	"google.golang.org/grpc/status"
 )
 
-func goCreateTicket(c pb.TicketServiceClient, in *pb.TicketInfo) {
+func goCreateTicket(c pb.TicketServiceClient, in *pb.TicketInfo) error {
 	fmt.Println("goCreateTicket client was invoked")
 
-	res, err := c.CreateTicket(context.Background(), in)
-	fmt.Println(res)
+	_, err := c.CreateTicket(context.Background(), in)
 	if err != nil {
-		log.Fatalf("goTestInput client failed: %v\n", err)
+		e, ok := status.FromError(err)
+
+		if ok {
+			log.Printf("Error message from server: %s\n", e.Message())
+			log.Printf("Error code from server: %s\n", e.Code())
+		} else {
+			log.Fatalf("A non GRPC error: %v\n", err)
+			return err
+		}
 	}
+
+	return nil
 }

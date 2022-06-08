@@ -187,7 +187,7 @@ func CreateFakeTicket() datatypes.Ticket {
 	return newTicket
 }
 
-func CreateTicket(session gocqlx.Session, newTicket *datatypes.Ticket) {
+func CreateTicket(session gocqlx.Session, newTicket *datatypes.Ticket) error {
 
 	insertTicket := qb.Insert("meed.ticket").
 		Columns("ticketid",
@@ -206,7 +206,9 @@ func CreateTicket(session gocqlx.Session, newTicket *datatypes.Ticket) {
 
 	if err := insertTicket.ExecRelease(); err != nil {
 		log.Fatal("ExecRelease() failed:", err)
+		return err
 	}
+	return nil
 }
 
 // insertTicket.BindStruct(ticket{
