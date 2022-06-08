@@ -86,7 +86,7 @@ func UpdateTicket(session gocqlx.Session, ticket *datatypes.Ticket) error {
 			"archived",
 			"status",
 			"claimed").
-		Where(qb.Eq("ticketid"), qb.Eq("userid")).
+		Where(qb.Eq("ticketid"), qb.Eq("userid")).Existing().
 		Query(session).
 		Bind(
 			ticket.Title,
@@ -187,7 +187,7 @@ func CreateFakeTicket() datatypes.Ticket {
 	return newTicket
 }
 
-func CreateTicket(session gocqlx.Session, newTicket datatypes.Ticket) {
+func CreateTicket(session gocqlx.Session, newTicket *datatypes.Ticket) {
 
 	insertTicket := qb.Insert("meed.ticket").
 		Columns("ticketid",
@@ -202,7 +202,7 @@ func CreateTicket(session gocqlx.Session, newTicket datatypes.Ticket) {
 			"status",
 			"claimed").Query(session)
 
-	insertTicket.BindStruct(newTicket)
+	insertTicket.BindStruct(*newTicket)
 
 	if err := insertTicket.ExecRelease(); err != nil {
 		log.Fatal("ExecRelease() failed:", err)

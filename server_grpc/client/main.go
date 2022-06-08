@@ -37,16 +37,16 @@ func main() {
 	// 	Claimed:     false,
 	// }
 	// fmt.Println("ticket made!")
-	uuid := queries.MustParseUUID("44573233-4c12-1d06-2c63-0910604a1816")
+	uuid := queries.MustParseUUID("44573233-4c12-1d06-2c63-555555555555")
 	time, _ := time.Parse("2006-01-02T15:04:05.000Z", "2232-12-23 00:00:00 +0000 UTC")
 
 	newTicket := datatypes.Ticket{
 		Ticketid:    uuid,
 		Serverid:    uuid,
 		Userid:      uuid,
-		Title:       "this is the insert query",
-		Description: "automatic insert",
-		Reward:      "the joy of not having to rewrite this",
+		Title:       "this is created ticket query",
+		Description: "newly created ticket",
+		Reward:      "newly created ticket",
 		Lifespan:    time,
 		Type:        "service",
 		Archived:    false,
@@ -61,7 +61,9 @@ func main() {
 
 	// myticket := goGetTicket(c, "44573233-4c12-1d06-2c63-0910604a1816")
 	// goUpdateTicket(c, ticketinfo)
-	goUpdateTicket(c, ticketinfo)
+	// goCreateTicket(c, ticketinfo)
+	goDeleteTicket(c, "44573233-4c12-1d06-2c63-555555555555")
+	fmt.Println("updated and deleted tickets!")
 	// readTickets(c)
 	// fmt.Println(myticket)
 }

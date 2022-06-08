@@ -26,7 +26,7 @@ type TicketServiceClient interface {
 	CreateTicket(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*TicketID, error)
 	ReadTickets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (TicketService_ReadTicketsClient, error)
 	GetTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*TicketInfo, error)
-	DeleteTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*TicketID, error)
 	UpdateTicket(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*TicketID, error)
 }
 
@@ -88,8 +88,8 @@ func (c *ticketServiceClient) GetTicket(ctx context.Context, in *TicketID, opts 
 	return out, nil
 }
 
-func (c *ticketServiceClient) DeleteTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *ticketServiceClient) DeleteTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*TicketID, error) {
+	out := new(TicketID)
 	err := c.cc.Invoke(ctx, "/server_grpc.TicketService/DeleteTicket", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -113,7 +113,7 @@ type TicketServiceServer interface {
 	CreateTicket(context.Context, *TicketInfo) (*TicketID, error)
 	ReadTickets(*emptypb.Empty, TicketService_ReadTicketsServer) error
 	GetTicket(context.Context, *TicketID) (*TicketInfo, error)
-	DeleteTicket(context.Context, *TicketID) (*emptypb.Empty, error)
+	DeleteTicket(context.Context, *TicketID) (*TicketID, error)
 	UpdateTicket(context.Context, *TicketInfo) (*TicketID, error)
 	mustEmbedUnimplementedTicketServiceServer()
 }
@@ -131,7 +131,7 @@ func (UnimplementedTicketServiceServer) ReadTickets(*emptypb.Empty, TicketServic
 func (UnimplementedTicketServiceServer) GetTicket(context.Context, *TicketID) (*TicketInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTicket not implemented")
 }
-func (UnimplementedTicketServiceServer) DeleteTicket(context.Context, *TicketID) (*emptypb.Empty, error) {
+func (UnimplementedTicketServiceServer) DeleteTicket(context.Context, *TicketID) (*TicketID, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTicket not implemented")
 }
 func (UnimplementedTicketServiceServer) UpdateTicket(context.Context, *TicketInfo) (*TicketID, error) {
