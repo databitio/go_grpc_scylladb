@@ -30,4 +30,5 @@ service TicketService {
     rpc GetTicket (TicketID) returns (TicketInfo);
     rpc UpdateTicket (TicketInfo) returns (google.protobuf.Empty);
     rpc DeleteTicket (TicketID) returns (google.protobuf.Empty);
+	rpc TestInput (TicketInfo) returns (TicketID);
 }

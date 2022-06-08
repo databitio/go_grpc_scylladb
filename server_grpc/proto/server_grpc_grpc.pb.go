@@ -28,6 +28,7 @@ type TicketServiceClient interface {
 	GetTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*TicketInfo, error)
 	UpdateTicket(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	TestInput(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*TicketID, error)
 }
 
 type ticketServiceClient struct {
@@ -106,6 +107,15 @@ func (c *ticketServiceClient) DeleteTicket(ctx context.Context, in *TicketID, op
 	return out, nil
 }
 
+func (c *ticketServiceClient) TestInput(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*TicketID, error) {
+	out := new(TicketID)
+	err := c.cc.Invoke(ctx, "/server_grpc.TicketService/TestInput", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TicketServiceServer is the server API for TicketService service.
 // All implementations must embed UnimplementedTicketServiceServer
 // for forward compatibility
@@ -115,6 +125,7 @@ type TicketServiceServer interface {
 	GetTicket(context.Context, *TicketID) (*TicketInfo, error)
 	UpdateTicket(context.Context, *TicketInfo) (*emptypb.Empty, error)
 	DeleteTicket(context.Context, *TicketID) (*emptypb.Empty, error)
+	TestInput(context.Context, *TicketInfo) (*TicketID, error)
 	mustEmbedUnimplementedTicketServiceServer()
 }
 
@@ -136,6 +147,9 @@ func (UnimplementedTicketServiceServer) UpdateTicket(context.Context, *TicketInf
 }
 func (UnimplementedTicketServiceServer) DeleteTicket(context.Context, *TicketID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTicket not implemented")
+}
+func (UnimplementedTicketServiceServer) TestInput(context.Context, *TicketInfo) (*TicketID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TestInput not implemented")
 }
 func (UnimplementedTicketServiceServer) mustEmbedUnimplementedTicketServiceServer() {}
 
@@ -243,6 +257,24 @@ func _TicketService_DeleteTicket_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TicketService_TestInput_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TicketInfo)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TicketServiceServer).TestInput(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server_grpc.TicketService/TestInput",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TicketServiceServer).TestInput(ctx, req.(*TicketInfo))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TicketService_ServiceDesc is the grpc.ServiceDesc for TicketService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -265,6 +297,10 @@ var TicketService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteTicket",
 			Handler:    _TicketService_DeleteTicket_Handler,
+		},
+		{
+			MethodName: "TestInput",
+			Handler:    _TicketService_TestInput_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -72,6 +72,48 @@ func GetByID(session gocqlx.Session, uuid gocql.UUID) (datatypes.Ticket, error) 
 	return ticket, err
 }
 
+func UpdateTicket(session gocqlx.Session, ticket *datatypes.Ticket) error {
+	// w := qb.EqNamed("ticketid", "")
+	// x := qb.EqNamed("serverid", "")
+	// y := qb.EqNamed("userid", "")
+	q := qb.Update("meed.ticket").
+		Set(
+			"title",
+			"description",
+			"reward",
+			"lifespan",
+			"type",
+			"archived",
+			"status",
+			"claimed").
+		Where(qb.Eq("ticketid"), qb.Eq("userid")).
+		Query(session).
+		Bind(
+			ticket.Title,
+			ticket.Description,
+			ticket.Reward,
+			ticket.Lifespan,
+			ticket.Type,
+			ticket.Archived,
+			ticket.Status,
+			ticket.Claimed,
+			ticket.Ticketid,
+			// ticket.Serverid,
+			ticket.Userid,
+		)
+
+	defer q.Release()
+	fmt.Println(q)
+
+	if err := q.Exec(); err != nil {
+		log.Fatalf("Error updating ticket: %v\n", err)
+		return err
+	}
+
+	fmt.Println("Updated successfully!")
+	return nil
+}
+
 func GetAllTickets(session gocqlx.Session) ([]datatypes.Ticket, error) {
 
 	q := qb.Select("meed.ticket").Query(session)
@@ -156,7 +198,9 @@ func CreateTicket(session gocqlx.Session, newTicket datatypes.Ticket) {
 			"reward",
 			"lifespan",
 			"type",
-			"archived").Query(session)
+			"archived",
+			"status",
+			"claimed").Query(session)
 
 	insertTicket.BindStruct(newTicket)
 
