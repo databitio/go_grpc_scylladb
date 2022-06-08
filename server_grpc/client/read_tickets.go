@@ -11,9 +11,10 @@ import (
 	pb "github.com/databitio/go_server/server_grpc/proto"
 )
 
-func readTickets(c pb.TicketServiceClient) {
+func readTickets(c pb.TicketServiceClient) []*pb.TicketInfo {
 	fmt.Println("readTickets client was invoked")
 
+	var allTickets []*pb.TicketInfo
 	stream, err := c.ReadTickets(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		log.Fatalf("ReadTickets client failed: %v\n", err)
@@ -24,10 +25,12 @@ func readTickets(c pb.TicketServiceClient) {
 			break
 		}
 
-		if err != nil{
-			log.Fatalf("Something happened: %v\n", err)
+		if err != nil {
+			log.Printf("Something happened: %v\n", err)
+			continue
 		}
 
-		log.Println(res)
+		allTickets = append(allTickets, res)
 	}
+	return allTickets
 }
