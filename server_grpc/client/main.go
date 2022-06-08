@@ -61,7 +61,7 @@ func main() {
 
 	// myticket := goGetTicket(c, "44573233-4c12-1d06-2c63-0910604a1816")
 	// goUpdateTicket(c, ticketinfo)
-	goTestInput(c, ticketinfo)
+	goUpdateTicket(c, ticketinfo)
 	// readTickets(c)
 	// fmt.Println(myticket)
 }

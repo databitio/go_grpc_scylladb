@@ -26,9 +26,8 @@ type TicketServiceClient interface {
 	CreateTicket(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*TicketID, error)
 	ReadTickets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (TicketService_ReadTicketsClient, error)
 	GetTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*TicketInfo, error)
-	UpdateTicket(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	TestInput(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*TicketID, error)
+	UpdateTicket(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*TicketID, error)
 }
 
 type ticketServiceClient struct {
@@ -89,15 +88,6 @@ func (c *ticketServiceClient) GetTicket(ctx context.Context, in *TicketID, opts 
 	return out, nil
 }
 
-func (c *ticketServiceClient) UpdateTicket(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/server_grpc.TicketService/UpdateTicket", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *ticketServiceClient) DeleteTicket(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/server_grpc.TicketService/DeleteTicket", in, out, opts...)
@@ -107,9 +97,9 @@ func (c *ticketServiceClient) DeleteTicket(ctx context.Context, in *TicketID, op
 	return out, nil
 }
 
-func (c *ticketServiceClient) TestInput(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*TicketID, error) {
+func (c *ticketServiceClient) UpdateTicket(ctx context.Context, in *TicketInfo, opts ...grpc.CallOption) (*TicketID, error) {
 	out := new(TicketID)
-	err := c.cc.Invoke(ctx, "/server_grpc.TicketService/TestInput", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/server_grpc.TicketService/UpdateTicket", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,9 +113,8 @@ type TicketServiceServer interface {
 	CreateTicket(context.Context, *TicketInfo) (*TicketID, error)
 	ReadTickets(*emptypb.Empty, TicketService_ReadTicketsServer) error
 	GetTicket(context.Context, *TicketID) (*TicketInfo, error)
-	UpdateTicket(context.Context, *TicketInfo) (*emptypb.Empty, error)
 	DeleteTicket(context.Context, *TicketID) (*emptypb.Empty, error)
-	TestInput(context.Context, *TicketInfo) (*TicketID, error)
+	UpdateTicket(context.Context, *TicketInfo) (*TicketID, error)
 	mustEmbedUnimplementedTicketServiceServer()
 }
 
@@ -142,14 +131,11 @@ func (UnimplementedTicketServiceServer) ReadTickets(*emptypb.Empty, TicketServic
 func (UnimplementedTicketServiceServer) GetTicket(context.Context, *TicketID) (*TicketInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTicket not implemented")
 }
-func (UnimplementedTicketServiceServer) UpdateTicket(context.Context, *TicketInfo) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateTicket not implemented")
-}
 func (UnimplementedTicketServiceServer) DeleteTicket(context.Context, *TicketID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTicket not implemented")
 }
-func (UnimplementedTicketServiceServer) TestInput(context.Context, *TicketInfo) (*TicketID, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method TestInput not implemented")
+func (UnimplementedTicketServiceServer) UpdateTicket(context.Context, *TicketInfo) (*TicketID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateTicket not implemented")
 }
 func (UnimplementedTicketServiceServer) mustEmbedUnimplementedTicketServiceServer() {}
 
@@ -221,24 +207,6 @@ func _TicketService_GetTicket_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TicketService_UpdateTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TicketInfo)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TicketServiceServer).UpdateTicket(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/server_grpc.TicketService/UpdateTicket",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TicketServiceServer).UpdateTicket(ctx, req.(*TicketInfo))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _TicketService_DeleteTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TicketID)
 	if err := dec(in); err != nil {
@@ -257,20 +225,20 @@ func _TicketService_DeleteTicket_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TicketService_TestInput_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TicketService_UpdateTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TicketInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TicketServiceServer).TestInput(ctx, in)
+		return srv.(TicketServiceServer).UpdateTicket(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/server_grpc.TicketService/TestInput",
+		FullMethod: "/server_grpc.TicketService/UpdateTicket",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TicketServiceServer).TestInput(ctx, req.(*TicketInfo))
+		return srv.(TicketServiceServer).UpdateTicket(ctx, req.(*TicketInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -291,16 +259,12 @@ var TicketService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TicketService_GetTicket_Handler,
 		},
 		{
-			MethodName: "UpdateTicket",
-			Handler:    _TicketService_UpdateTicket_Handler,
-		},
-		{
 			MethodName: "DeleteTicket",
 			Handler:    _TicketService_DeleteTicket_Handler,
 		},
 		{
-			MethodName: "TestInput",
-			Handler:    _TicketService_TestInput_Handler,
+			MethodName: "UpdateTicket",
+			Handler:    _TicketService_UpdateTicket_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

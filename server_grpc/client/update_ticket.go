@@ -3,19 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 
+	// "github.com/databitio/go_server/queries"
 	pb "github.com/databitio/go_server/server_grpc/proto"
 )
 
 func goUpdateTicket(c pb.TicketServiceClient, in *pb.TicketInfo) {
-	fmt.Println("updateTicket client was invoked")
+	fmt.Println("goTestInput client was invoked")
 
-	fmt.Println(context.Background())
-	fmt.Println(in)
-	_, err := c.UpdateTicket(context.Background(), in)
-
+	res, err := c.UpdateTicket(context.Background(), in)
+	fmt.Println(res)
 	if err != nil {
-		fmt.Printf("GetTicket client failed: %v\n", err)
+		log.Fatalf("goTestInput client failed: %v\n", err)
 	}
-
 }

@@ -3,20 +3,24 @@ package main
 import (
 	"context"
 	"fmt"
-
-	"google.golang.org/protobuf/types/known/emptypb"
+	"log"
 
 	"github.com/databitio/go_server/queries"
 	pb "github.com/databitio/go_server/server_grpc/proto"
 )
 
-func UpdateTicket(ctx context.Context, in *pb.TicketInfo) (*emptypb.Empty, error) {
-	fmt.Println("UpdateTicket was invoked")
+func (s *Server) UpdateTicket(ctx context.Context, in *pb.TicketInfo) (*pb.TicketID, error) {
+	log.Println("TestInput was invoked")
 
-	ticket := ticketMessageToTicket(in)
-	err := queries.UpdateTicket(session, ticket)
+	newTicket := ticketMessageToTicket(in)
+
+	err := queries.UpdateTicket(session, newTicket)
+
+	fmt.Println("completed update!")
+	fmt.Println("parameter:\n", in)
+
 	if err != nil {
-		fmt.Printf("Update Ticket error: %v\n", err)
+		log.Fatalf("Failed to get all tickets: %v\n", err)
 	}
 
 	return nil, nil
