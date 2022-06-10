@@ -1,41 +1,13 @@
-// const path = require("path")
-const grpc = require("@grpc/grpc-js");
-const protoLoader = require("@grpc/proto-loader");
-var PROTO_PATH = "../proto/server_grpc.proto";
-
-var packageDefinition = protoLoader.loadSync(
-    PROTO_PATH,
-    {keepCase: true,
-     longs: String,
-     enums: String,
-     defaults: true,
-     oneofs: true
-    });
-
-var protoDescriptor = grpc.loadPackageDefinition(packageDefinition);
-
-var routeguide = protoDescriptor.routeguide;
-var client = new routeguide.RouteGuide('localhost:50051', grpc.credentials.createInsecure());
+const client = require("./client");
 
 function main() {
-    client.goCreateTicket()
+    // client.ReadTickets()
+    client.CreateTicket({}, (tickets, error) => {
+    if (!error) throw error
+      console.log(tickets);
+  });
+  // err = goCreateTicket(c, ticketinfo)
+//   stream, err := c.ReadTickets(context.Background(), &emptypb.Empty{})
 }
 
-
-
-
-
-function getServer() {
-    var server = new grpc.Server();
-    server.addService(routeguide.RouteGuide.service, {
-      getFeature: getFeature,
-      listFeatures: listFeatures,
-      recordRoute: recordRoute,
-      routeChat: routeChat
-    });
-    return server;
-  }
-  var routeServer = getServer();
-  routeServer.bindAsync('0.0.0.0:50051', grpc.ServerCredentials.createInsecure(), () => {
-    routeServer.start();
-  });
+main()

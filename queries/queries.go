@@ -54,12 +54,14 @@ func GetByID(session gocqlx.Session, uuid gocql.UUID) (datatypes.Ticket, error) 
 	ticket, err := DBToTicket(rows[0])
 	return ticket, err
 }
+
 //*************************************************************************
 //Get all tickets in the ticket table
 func GetAllTickets(session gocqlx.Session) ([]datatypes.Ticket, error) {
 
+	log.Println("Entered query")
 	q := qb.Select("meed.ticket").Query(session)
-
+	log.Println("set query")
 	defer q.Release()
 
 	var tickets []datatypes.Ticket
@@ -71,6 +73,7 @@ func GetAllTickets(session gocqlx.Session) ([]datatypes.Ticket, error) {
 			}
 		}
 	}
+	log.Println("returning query")
 	return tickets, nil
 }
 
@@ -117,6 +120,7 @@ func UpdateTicket(session gocqlx.Session, ticket *datatypes.Ticket) error {
 	fmt.Println("Updated successfully!")
 	return nil
 }
+
 //*************************************************************************
 //Delete a ticket by ticketid
 func DeleteTicket(session gocqlx.Session, uuid gocql.UUID) error {
@@ -132,6 +136,7 @@ func DeleteTicket(session gocqlx.Session, uuid gocql.UUID) error {
 	fmt.Println("deleted successfully!")
 	return nil
 }
+
 //*************************************************************************
 //Create new ticket table
 func CreateTicketTable(session gocqlx.Session) error {
@@ -163,6 +168,7 @@ func CreateTicketTable(session gocqlx.Session) error {
 
 	return nil
 }
+
 //*************************************************************************
 //Deletes ticket table
 // func DeleteTicketTable (session gocqlx.Session) error {

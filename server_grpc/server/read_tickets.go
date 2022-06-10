@@ -16,6 +16,7 @@ func (s *Server) ReadTickets(in *emptypb.Empty, stream pb.TicketService_ReadTick
 	log.Println("ReadTickets was invoked")
 
 	tickets, err := queries.GetAllTickets(session)
+	log.Println("Exited query")
 
 	if err != nil {
 		return status.Errorf(
