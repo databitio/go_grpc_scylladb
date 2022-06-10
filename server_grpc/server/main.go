@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc"
 
 	// "github.com/databitio/go_server/datatypes"
-	// "github.com/databitio/go_server/queries"
 
 	// "errors"
 	"net"
@@ -83,14 +82,14 @@ import (
 // }
 
 func ConnectToCluster() gocqlx.Session {
-	var cluster = gocql.NewCluster("52.3.213.119", "34.225.225.53", "54.82.189.29")
-	cluster.Authenticator = gocql.PasswordAuthenticator{Username: "scylla", Password: "HubOg2xDLqp6K0E"}
-	cluster.PoolConfig.HostSelectionPolicy = gocql.DCAwareRoundRobinPolicy("AWS_US_EAST_1")
+	var cluster = gocql.NewCluster("3.233.176.20", "54.208.199.255", "44.206.172.83")
+    cluster.Authenticator = gocql.PasswordAuthenticator{Username: "scylla", Password: "w7lTdugqIh1F2RC"}
+    cluster.PoolConfig.HostSelectionPolicy = gocql.DCAwareRoundRobinPolicy("AWS_US_EAST_1")
 
-	var session, err = gocqlx.WrapSession(cluster.CreateSession())
-	if err != nil {
-		panic("Failed to connect to cluster")
-	}
+    var session, err = gocqlx.WrapSession(cluster.CreateSession())
+    if err != nil {
+        panic("Failed to connect to cluster")
+    }
 	fmt.Println("Connected to DB!")
 	return session
 }
@@ -106,12 +105,13 @@ type Server struct {
 var session gocqlx.Session = ConnectToCluster()
 
 func main() {
+	// ticket1, ticket2, ticket3:= queries.CreateFakeTicket(),queries.CreateFakeTicket(),queries.CreateFakeTicket();
 
-	// queries.CreateNewServer(session)
+	// queries.CreateTicketTable(session)
 	// fmt.Println("Connected to server!")
-	// queries.CreateTicket(session, queries.CreateFakeTicket())
-	// queries.CreateTicket(session, queries.CreateFakeTicket())
-	// queries.CreateTicket(session, queries.CreateFakeTicket())
+	// queries.CreateTicket(session, &ticket1)
+	// queries.CreateTicket(session, &ticket2)
+	// queries.CreateTicket(session, &ticket3)
 	// fmt.Println("Added tickets!")
 
 	// alltickets, err := queries.GetAllTickets(session)
