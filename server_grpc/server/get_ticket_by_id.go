@@ -12,7 +12,7 @@ import (
 )
 
 func (s *Server) GetTicket(ctx context.Context, in *pb.TicketID) (*pb.TicketInfo, error) {
-	log.Printf("Greet function was invoked with %v\n", in)
+	log.Printf("Get ticket was invoked with %v\n", in)
 
 	uuid := queries.MustParseUUID(in.Result)
 	selectedTicket, err := queries.GetByID(session, uuid)

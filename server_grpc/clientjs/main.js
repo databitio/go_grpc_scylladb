@@ -1,7 +1,8 @@
 const client = require("./client");
 const { v4: uuidv4 } = require('uuid');
 
-var uuid = uuidv4();
+// var uuid = uuidv4();
+var uuid = "75bfd13a-54da-4405-8594-0359a5fec418"
 
 let myticket = {
   Ticketid: uuid, 
@@ -30,15 +31,45 @@ let myticket = {
 //   Claimed: data.Claimed,
 // }
 
-function main() {
-    // client.ReadTickets()
-    client.CreateTicket(myticket, (tickets, error) => {
+function goCreateTicket(ticket) {
+    client.CreateTicket(ticket, (error, tickets) => {
     if (!error) {console.log(error)}
       console.log(tickets);
   });
-  // err = goCreateTicket(c, ticketinfo)
-//   stream, err := c.ReadTickets(context.Background(), &emptypb.Empty{})
 }
 
-main()
+function goDeleteTicket(ticket) {
+    client.DeleteTicket({Result: ticket.Ticketid}, (error, tickets) => {
+        if (!error) {console.log(error)}
+          console.log(tickets);
+      });
+}
 
+function goGetTicket(ticket) {
+    client.GetTicket({Result: ticket.Ticketid}, (error, tickets) => {
+        if (!error) {console.log(error)}
+          console.log(tickets);
+      });
+}
+
+function goReadTickets() {
+    client.ReadTickets({}).on('data', function(ticket){
+        console.log(ticket)
+    })
+        // if (!error) {console.log(error)}
+    // let call = client.client.ReadTickets({}, error);
+
+    //   call.on('data',function(response){
+    //     console.log(response.message);
+    //   });
+    
+    //   call.on('end',function(){
+    //     console.log('All Salaries have been paid');
+    //   });
+}
+
+// goCreateTicket(myticket)
+// console.log("ticket created!", uuid)
+// goDeleteTicket(myticket)
+// goGetTicket(myticket)
+goReadTickets()

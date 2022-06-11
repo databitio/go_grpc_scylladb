@@ -12,7 +12,7 @@ import (
 )
 
 func (s *Server) CreateTicket(ctx context.Context, in *pb.TicketInfo) (*pb.TicketID, error) {
-	log.Println("TestInput was invoked")
+	log.Println("CreateTicket was invoked")
 
 	newTicket := ticketMessageToTicket(in)
 
