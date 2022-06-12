@@ -16,7 +16,6 @@ func (s *Server) GetTicket(ctx context.Context, in *pb.TicketID) (*pb.TicketInfo
 
 	uuid := queries.MustParseUUID(in.Result)
 	selectedTicket, err := queries.GetByID(session, uuid)
-
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,

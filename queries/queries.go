@@ -44,8 +44,7 @@ func CreateTicket(session gocqlx.Session, newTicket *datatypes.Ticket) error {
 //*************************************************************************
 //Get ticket by id
 func GetByID(session gocqlx.Session, uuid gocql.UUID) (datatypes.Ticket, error) {
-	w := qb.EqNamed("ticketid", "")
-	q := qb.Select("meed.ticket").Where(w).Query(session).Bind(uuid.String())
+	q := qb.Select("meed.ticket").Where(qb.Eq("ticketid")).Query(session).Bind(uuid.String())
 
 	rows, err := q.Iter().SliceMap()
 	if err != nil {
@@ -59,9 +58,7 @@ func GetByID(session gocqlx.Session, uuid gocql.UUID) (datatypes.Ticket, error) 
 //Get all tickets in the ticket table
 func GetAllTickets(session gocqlx.Session) ([]datatypes.Ticket, error) {
 
-	log.Println("Entered query")
 	q := qb.Select("meed.ticket").Query(session)
-	log.Println("set query")
 	defer q.Release()
 
 	var tickets []datatypes.Ticket
@@ -73,7 +70,6 @@ func GetAllTickets(session gocqlx.Session) ([]datatypes.Ticket, error) {
 			}
 		}
 	}
-	log.Println("returning query")
 	return tickets, nil
 }
 
@@ -93,7 +89,7 @@ func UpdateTicket(session gocqlx.Session, ticket *datatypes.Ticket) error {
 			"archived",
 			"status",
 			"claimed").
-		Where(qb.Eq("ticketid"), qb.Eq("userid")).Existing().
+		Where(qb.Eq("ticketid"), qb.Eq("serverid"), qb.Eq("userid")).Existing().
 		Query(session).
 		Bind(
 			ticket.Title,
@@ -105,12 +101,11 @@ func UpdateTicket(session gocqlx.Session, ticket *datatypes.Ticket) error {
 			ticket.Status,
 			ticket.Claimed,
 			ticket.Ticketid,
-			// ticket.Serverid,
+			ticket.Serverid,
 			ticket.Userid,
 		)
 
 	defer q.Release()
-	fmt.Println(q)
 
 	if err := q.Exec(); err != nil {
 		log.Fatalf("Error updating ticket: %v\n", err)
@@ -140,6 +135,7 @@ func DeleteTicket(session gocqlx.Session, uuid gocql.UUID) error {
 //*************************************************************************
 //Create new ticket table
 func CreateTicketTable(session gocqlx.Session) error {
+	DeleteTicketTable(session)
 
 	err := session.ExecStmt(`CREATE KEYSPACE IF NOT EXISTS meed WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 2}`)
 	if err != nil {
@@ -159,7 +155,7 @@ func CreateTicketTable(session gocqlx.Session) error {
 		archived boolean,
 		status text,
 		claimed boolean,
-		PRIMARY KEY (ticketid, userid)
+		PRIMARY KEY (ticketid, serverid, userid)
 		)`)
 	if err != nil {
 		fmt.Println("create table:", err)
@@ -170,14 +166,15 @@ func CreateTicketTable(session gocqlx.Session) error {
 }
 
 //*************************************************************************
-//Deletes ticket table
-// func DeleteTicketTable (session gocqlx.Session) error {
-// 	err := session.ExecStmt(`DROP KEYSPACE meed`)
-// 	if err != nil {
-// 		log.Printf("Error deleting ticket table: %v\n", err)
-// 	}
-// 	return nil
-// }
+// Deletes ticket table
+func DeleteTicketTable(session gocqlx.Session) error {
+	err := session.ExecStmt(`DROP KEYSPACE meed`)
+	if err != nil {
+		log.Printf("Error deleting ticket table: %v\n", err)
+	}
+	return nil
+}
+
 //*************************************************************************
 // func SelectTicketByLocalID(session gocqlx.Session, ticketTable *table.Table, uuid gocql.UUID) {
 // 	ticketrows := ticketTable.SelectQuery(session)
