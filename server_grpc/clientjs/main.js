@@ -90,21 +90,42 @@ function goUpdateTicket(ticket) {
       });
 }
 var newticket;
-// function main() {
-//     // goCreateTicket(myticket)
-//     // console.log("ticket created!", uuid)
-//     // goDeleteTicket(myticket)
-//     // newticket, error = goGetTicket(myticket.Ticketid, newticket)
-//     newticket = await goGetTicket(myticket.Ticketid)
-//     console.log(newticket)
-//     // goReadTickets()
-//     // goCreateTicket(myticket)
-//     // goUpdateTicket(myticket)
-// }
+function main() {
+    // goCreateTicket(myticket)
+    // console.log("ticket created!", uuid)
+    // goDeleteTicket(myticket)
+    // newticket, error = goGetTicket(myticket.Ticketid, newticket)
+    // var thisticket = callback()
+    // console.log(thisticket)
+    // goReadTickets()
+
+    // var someticket;
+    // goGetTicket(myticket.Ticketid).then(function(result) {
+    //   console.log(result)
+    //   someticket = result;
+    // });
+    // console.log(someticket)
+
+    // newticket = callback()
+    var myticket = funcA();
+    console.log(myticket)
+    // console.log(newticket)
+    // goCreateTicket(myticket)
+    // goUpdateTicket(myticket)
+}
 
 async function callback() {
     newticket = await goGetTicket(myticket.Ticketid)
+    console.log("1")
     console.log(newticket)
+    console.log("2")
+    return newticket
 }
 
-callback()
+const funcA = async() => {
+  const somticket  = await goGetTicket(myticket.Ticketid);
+  console.log("ticket: ", somticket);
+  return somticket;
+}
+
+main()
