@@ -10,53 +10,34 @@ let myticket = {
   Ticketid: ticketid, 
   Serverid: serverid, 
   Userid: userid,
-  Title: "newest loaded from javascript!",
-  Description: "javascript description!",
-  Reward: "my reward is this working!",
-  Lifespan: "2046-10-26",
-  Type: "servicesssssssssssssssssssssss!!",
+  Title: "example title",
+  Description: "example description",
+  Reward: "example reward",
+  Lifespan: "example lifespan",
+  Type: "example type",
   Archived: false,
-  Status: "incompleteeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  Status: "example status",
   Claimed: true,
 }
 
-function ticketMessageToTicket (data) {
-    return {
-    Ticketid: data.Ticketid, 
-    Serverid: data.Serverid, 
-    Userid: data.Userid,
-    Title: data.Title,
-    Description: data.Description,
-    Reward: data.Reward,
-    Lifespan: data.Lifespan,
-    Type: data.Type,
-    Archived: data.Archived,
-    Status: data.Status,
-    Claimed: data.Claimed,
-    }
-}
-
 function goCreateTicket(ticket) {
+  return new Promise( resolve => {
     client.CreateTicket(ticket, (error, tickets) => {
     if (!error) {console.log(error)}
-      console.log(tickets);
-  });
+    resolve(tickets);
+    });
+  })
 }
 
 function goDeleteTicket(ticket) {
+  return new Promise( resolve => {
     client.DeleteTicket({Result: ticket.Ticketid}, (error, tickets) => {
         if (!error) {console.log(error)}
-          console.log(tickets);
+        resolve(tickets);
       });
+    })
 }
 
-// function getTicket(){
-//     let promise = new Promise(function getCallback(call, callback) {
-//         if(callback)
-//             callback(call)
-//         console.log("callback finished!")
-//     })
-// }
 function goGetTicket(ticketid){
     return new Promise( resolve => {
         client.GetTicket({Result: ticketid}, (error, ticket) => {
@@ -67,51 +48,56 @@ function goGetTicket(ticketid){
 }
 
 function goReadTickets() {
+  return new Promise( resolve => {
     client.ReadTickets({}).on('data', function(ticket){
-        console.log(ticket)
-    })
-    
-    // client.ReadTickets({}).on('end',function(){
-    //     console.log('All tickets have been read');
-    //   });
+        if (!error) {console.log(error)}
+        resolve(ticket)
+    });
+  })
 }
 
 function goUpdateTicket(ticket) {
+  return new Promise( resolve => {
     client.UpdateTicket(ticket, (error, tickets) => {
         if (!error) {console.log(error)}
-        console.log(tickets);
+        resolve(tickets);
       });
-}
-var newticket;
-function main() {
-    // goCreateTicket(myticket)
-    // console.log("ticket created!", uuid)
-    // goDeleteTicket(myticket)
-    // newticket, error = goGetTicket(myticket.Ticketid, newticket)
-    // var thisticket = callback()
-    // console.log(thisticket)
-    // goReadTickets()
-
-    // var someticket;
-    // goGetTicket(myticket.Ticketid).then(function(result) {
-    //   console.log(result)
-    //   someticket = result;
-    // });
-    // console.log(someticket)
-
-    newticket = callback()
-    console.log(newticket)
-    // console.log(newticket)
-    // goCreateTicket(myticket)
-    // goUpdateTicket(myticket)
+    })
 }
 
-async function callback() {
-    newticket = await goGetTicket(myticket.Ticketid)
-    console.log("1")
-    console.log(newticket)
-    console.log("2")
-    return newticket
+ async function main() {
+  console.log("Creating ticket...")
+  await ticketCallback(myticket, goCreateTicket).then(value => {
+    console.log("Ticket created!", value)
+  })
+  
+  console.log("Getting ticket...")
+  await ticketCallback(myticket.Ticketid, goGetTicket).then(value => {
+    console.log("Ticket found in database!", value)
+  })
+
+  myticket.Title = "This is the updated title!"
+
+  console.log("Updating ticket...")
+  await ticketCallback(myticket, goUpdateTicket).then(value => {
+    console.log("Ticket updated!", value)
+  })
+
+  // console.log("Getting all tickets...")
+  // ticketCallback(myticket.Ticketid, goReadTickets).then(value => {
+  //   console.log("All tickets in database:", value)
+  // })
+
+  console.log("Deleting ticket...")
+  await ticketCallback(myticket, goDeleteTicket).then(value => {
+    console.log("Ticket deleted!", value)
+  })
+}
+
+async function ticketCallback(call, callback) {
+    response = await callback(call)
+    return response
 }
 
 main()
+

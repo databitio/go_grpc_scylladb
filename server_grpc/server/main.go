@@ -1,86 +1,16 @@
 package main
 
 import (
-	// "encoding/json"
-	// "fmt"
-	"log"
-
-	"google.golang.org/grpc"
-
-	// "github.com/databitio/go_server/datatypes"
-	// "github.com/databitio/go_server/queries"
-
-	// "errors"
-	"net"
-	// "net/http"
-
-	// "github.com/gin-gonic/gin"
-
 	"fmt"
+	"log"
+	"net"
 
 	pb "github.com/databitio/go_server/server_grpc/proto"
 	"github.com/gocql/gocql"
 	"github.com/scylladb/gocqlx/v2"
+	"google.golang.org/grpc"
 )
 
-// var tickets = []ticket{
-// 	{Ticketid: "ticket1", Title: "ticket title 1", Username: "username1", Description: "this is the first ticket", Reward: "16 copper", Lifespan: "10 days", Type: "service"},
-// 	{Ticketid: "ticket2", Title: "ticket title 2", Username: "username2", Description: "this is the second ticket", Reward: "16 copper", Lifespan: "9 days", Type: "service"},
-// 	{Ticketid: "ticket3", Title: "ticket title 3", Username: "username3", Description: "this is the third ticket", Reward: "16 copper", Lifespan: "8 days", Type: "service"},
-// }
-
-// func ticketByID(c *gin.Context) {
-// 	id := c.Param("ticketid")
-// 	ticket, err := getTicketByID(id)
-
-// 	if err != nil {
-// 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "ticket not found"})
-// 		return
-// 	}
-
-// 	c.IndentedJSON(http.StatusOK, ticket)
-// }
-
-// func getTicketByID(id string) (*ticket, error) {
-// 	for index, ticket := range tickets {
-// 		if ticket.Ticketid == id {
-// 			return &tickets[index], nil
-// 		}
-// 	}
-// 	return nil, errors.New("ticket not found")
-// }
-
-// func getTickets(c *gin.Context) {
-// 	c.IndentedJSON(http.StatusOK, tickets)
-// }
-
-// func createTicket(c *gin.Context) {
-// 	var newTicket ticket
-
-// 	if err := c.BindJSON(&newTicket); err != nil {
-// 		return
-// 	}
-
-// 	tickets = append(tickets, newTicket)
-// 	c.IndentedJSON(http.StatusCreated, newTicket)
-// }
-
-// func queryAll(session *gocql.Session) {
-// 	var query = session.Query("SELECT * FROM mykeyspace.ticket")
-// 	return query
-// }
-
-// func readAll(c *gin.Context) {
-
-//     var query := queryAll()
-
-// 	if rows, err := query.Iter().SliceMap(); err == nil {
-// 		for _, row := range rows {
-// 			c.IndentedJSON(http.StatusOK, row)
-// 		}
-// 	}
-// 	return
-// }
 
 func ConnectToCluster() gocqlx.Session {
 	var cluster = gocql.NewCluster("3.233.176.20", "54.208.199.255", "44.206.172.83")
@@ -97,8 +27,6 @@ func ConnectToCluster() gocqlx.Session {
 
 var addr string = "0.0.0.0:50051"
 
-// var addr string = "localhost:50051"
-
 type Server struct {
 	pb.TicketServiceServer
 }
@@ -106,21 +34,6 @@ type Server struct {
 var session gocqlx.Session = ConnectToCluster()
 
 func main() {
-	// ticket1, ticket2, ticket3 := queries.CreateFakeTicket(), queries.CreateFakeTicket(), queries.CreateFakeTicket()
-
-	// queries.CreateTicketTable(session)
-	// fmt.Println("Connected to server!")
-	// queries.CreateTicket(session, &ticket1)
-	// queries.CreateTicket(session, &ticket2)
-	// queries.CreateTicket(session, &ticket3)
-	// fmt.Println("Added tickets!")
-
-	// alltickets, err := queries.GetAllTickets(session)
-	// if err != nil {
-	// 	log.Fatalf("Getalltickets failed: %v\n", err)
-	// }
-	// fmt.Println(alltickets)
-	// fmt.Println("\n", alltickets[0])
 
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -137,32 +50,3 @@ func main() {
 		log.Fatalf("Failed to serve: %v\n", err)
 	}
 }
-
-// uuid := queries.MustParseUUID("37612118-3145-0f0e-2919-4b2010292640")
-// 	newTicket := datatypes.Ticket{
-// 		Ticketid:    uuid,
-// 		Serverid:    uuid,
-// 		Userid:      uuid,
-// 		Title:       "this is the insert query",
-// 		Description: "automatic insert",
-// 		Reward:      "the joy of not having to rewrite this",
-// 		Lifespan:    5,
-// 		Type:        "service",
-// 		Archived:    false,
-// 	}
-
-// 	// ticketid, _ := gocql.RandomUUID()
-
-// 	// ticketTable := queries.CreateTable(queries.CreateTicketMetadata())
-// 	queries.CreateNewServer(session)
-// 	// queries.CreateTicket(session, queries.CreateFakeTicket())
-// 	// fmt.Println("added")
-// 	// thisticket, _ := queries.GetByID(session, uuid)
-// 	// fmt.Println(thisticket)
-// 	// queries.DeleteTicket(session, uuid)
-// 	queries.CreateTicket(session, newTicket)
-// 	queries.CreateTicket(session, queries.CreateFakeTicket())
-// 	tickets, _ := queries.GetAllTickets(session)
-// 	fmt.Println(tickets)
-// 	// fmt.Println("selecting ticket with id 37612118-3145-0f0e-2919-4b2010292640: ")
-// 	// queries.SelectTicketByID(session, ticketTable, uuid)

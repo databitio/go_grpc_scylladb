@@ -3,7 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
+	"github.com/databitio/go_server/datatypes"
+	"github.com/gocql/gocql"
+
+	// "github.com/databitio/go_server/queries"
 	pb "github.com/databitio/go_server/server_grpc/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -20,8 +25,63 @@ func main() {
 	defer conn.Close()
 	c := pb.NewTicketServiceClient(conn)
 
-	fmt.Println(c)
+	uuid, _ := gocql.RandomUUID()
+	time := time.Now()
 
+	newTicket := datatypes.Ticket{
+		Ticketid:    uuid,
+		Serverid:    uuid,
+		Userid:      uuid,
+		Title:       "this is created ticket query",
+		Description: "newly created ticket",
+		Reward:      "newly created ticket",
+		Lifespan:    time,
+		Type:        "service",
+		Archived:    false,
+		Status:      "updated!",
+		Claimed:     false,
+	}
+
+	ticketinfo := ticketToTicketMessage(&newTicket)
+
+
+	fmt.Println("Creating ticket...")
+	err = goCreateTicket(c, ticketinfo)
+	if err != nil {
+		fmt.Printf("Error creating ticket: %v\n", err)
+	}
+	fmt.Println("Successfully added ticket!")
+
+	fmt.Println("Getting ticket by id...")
+	myticket := goGetTicket(c, uuid.String())
+	fmt.Printf("Ticket found!: %v\n", myticket)
+
+	newTicket.Title = "Updated title!"
+	fmt.Println("Updating this tickets title...")
+	ticketinfo = ticketToTicketMessage(&newTicket)
+	_, err = goUpdateTicket(c, ticketinfo)
+	if err != nil {
+		fmt.Printf("Error updating ticket: %v\n", err)
+	}
+	fmt.Println("Ticket updated successfully!")
+	
+	fmt.Println("Getting updated ticket...")
+	myticket = goGetTicket(c, uuid.String())
+	fmt.Printf("Ticket found!: %v\n", myticket)
+
+	fmt.Println("Deleting this ticket from db...")
+	err = goDeleteTicket(c, uuid.String())
+	if err != nil {
+		fmt.Printf("Error deleting ticket: %v\n", err)
+	}
+	fmt.Println("Delete success! Printing out all tickets...")
+	
+	alltickets := readTickets(c)
+	for index, ticket := range alltickets {
+		fmt.Println(index, *ticketMessageToTicket(ticket))
+	}
+
+	fmt.Println("All operations complete! Shutting down...")
 }
 
 //Testing all CRUD operations
