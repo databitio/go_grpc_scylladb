@@ -66,13 +66,6 @@ function goGetTicket(ticketid){
     })
 }
 
-// function goGetTicket(ticketid) {
-//     client.GetTicket({Result: ticketid}, (error, ticket) => {
-//         if (!error) {console.log(error)}
-//         return ticket
-//       });
-// }
-
 function goReadTickets() {
     client.ReadTickets({}).on('data', function(ticket){
         console.log(ticket)
@@ -106,9 +99,8 @@ function main() {
     // });
     // console.log(someticket)
 
-    // newticket = callback()
-    var myticket = funcA();
-    console.log(myticket)
+    newticket = callback()
+    console.log(newticket)
     // console.log(newticket)
     // goCreateTicket(myticket)
     // goUpdateTicket(myticket)
@@ -120,12 +112,6 @@ async function callback() {
     console.log(newticket)
     console.log("2")
     return newticket
-}
-
-const funcA = async() => {
-  const somticket  = await goGetTicket(myticket.Ticketid);
-  console.log("ticket: ", somticket);
-  return somticket;
 }
 
 main()
