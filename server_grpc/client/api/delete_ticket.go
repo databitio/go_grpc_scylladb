@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"context"
@@ -10,10 +10,14 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func goCreateTicket(c pb.TicketServiceClient, in *pb.TicketInfo) error {
-	fmt.Println("goCreateTicket client was invoked")
+func GoDeleteTicket(c pb.TicketServiceClient, id string) error {
+	fmt.Println("goDeleteTicket client was invoked")
 
-	_, err := c.CreateTicket(context.Background(), in)
+	req := &pb.TicketID{
+		Result: id,
+	}
+
+	_, err := c.DeleteTicket(context.Background(), req)
 	if err != nil {
 		e, ok := status.FromError(err)
 
@@ -25,6 +29,5 @@ func goCreateTicket(c pb.TicketServiceClient, in *pb.TicketInfo) error {
 			return err
 		}
 	}
-
 	return nil
 }

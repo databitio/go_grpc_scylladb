@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"context"
@@ -7,15 +7,17 @@ import (
 
 	"github.com/databitio/go_server/queries"
 	pb "github.com/databitio/go_server/server_grpc/proto"
+	"github.com/databitio/go_server/server_grpc/server/db"
+	"github.com/databitio/go_server/server_grpc/server/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func (s *Server) GetTicket(ctx context.Context, in *pb.TicketID) (*pb.TicketInfo, error) {
+func (s *GoServer) GetTicket(ctx context.Context, in *pb.TicketID) (*pb.TicketInfo, error) {
 	log.Printf("Get ticket was invoked with %v\n", in)
 
 	uuid := queries.MustParseUUID(in.Result)
-	selectedTicket, err := queries.GetByID(session, uuid)
+	selectedTicket, err := queries.GetByID(db.Session, uuid)
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
@@ -23,6 +25,6 @@ func (s *Server) GetTicket(ctx context.Context, in *pb.TicketID) (*pb.TicketInfo
 		)
 	}
 
-	ticketInfo := ticketToTicketMessage(&selectedTicket)
+	ticketInfo := utils.TicketToTicketMessage(&selectedTicket)
 	return ticketInfo, nil
 }

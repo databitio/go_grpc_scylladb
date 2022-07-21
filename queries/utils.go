@@ -1,21 +1,14 @@
 package queries
 
 import (
-	// "encoding/json"
 	"fmt"
 	"time"
 
-	// "errors"
-	// "net/http"
-
-	// "github.com/gin-gonic/gin"
 	"github.com/databitio/go_server/datatypes"
 
 	"github.com/bxcodec/faker/v3"
 	"github.com/gocql/gocql"
-	"github.com/scylladb/gocqlx/v2/table"
 )
-
 
 func CreateFakeTicket() datatypes.Ticket {
 
@@ -33,21 +26,6 @@ func MustParseUUID(s string) gocql.UUID {
 		panic(err)
 	}
 	return u
-}
-
-//Metadata and create table used to filter data
-func CreateTicketMetadata() table.Metadata {
-	ticketMetadata := table.Metadata{
-		Name:    "meed.ticket",
-		Columns: []string{"ticketid", "title", "userid", "description", "reward", "lifespan", "type", "archived"},
-		PartKey: []string{"ticketid"},
-		SortKey: []string{"userid"},
-	}
-	return ticketMetadata
-}
-
-func CreateTable(metadata table.Metadata) *table.Table {
-	return table.New(metadata)
 }
 
 func DBToTicket(ticket map[string]interface{}) (datatypes.Ticket, error) {

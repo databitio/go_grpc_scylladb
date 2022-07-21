@@ -1,14 +1,16 @@
-package main
+package utils
 
 import (
 	"time"
 
 	"github.com/databitio/go_server/datatypes"
 	"github.com/databitio/go_server/queries"
+	"github.com/databitio/go_server/server_grpc/proto"
 	pb "github.com/databitio/go_server/server_grpc/proto"
+	"github.com/gocql/gocql"
 )
 
-func ticketToTicketMessage(data *datatypes.Ticket) *pb.TicketInfo {
+func TicketToTicketMessage(data *datatypes.Ticket) *pb.TicketInfo {
 	return &pb.TicketInfo{
 		Ticketid:    data.Ticketid.String(),
 		Userid:      data.Userid.String(),
@@ -24,7 +26,7 @@ func ticketToTicketMessage(data *datatypes.Ticket) *pb.TicketInfo {
 	}
 }
 
-func ticketMessageToTicket(data *pb.TicketInfo) *datatypes.Ticket {
+func TicketMessageToTicket(data *pb.TicketInfo) *datatypes.Ticket {
 	time, _ := time.Parse("2006-01-02T15:04:05.000Z", data.Lifespan)
 	return &datatypes.Ticket{
 		Ticketid:    queries.MustParseUUID(data.Ticketid),
@@ -39,4 +41,24 @@ func ticketMessageToTicket(data *pb.TicketInfo) *datatypes.Ticket {
 		Status:      data.Status,
 		Claimed:     data.Claimed,
 	}
+}
+
+func CreateFakeTicketMessage(uuid gocql.UUID) *proto.TicketInfo {
+	time := time.Now()
+
+	newTicket := datatypes.Ticket{
+		Ticketid:    uuid,
+		Serverid:    uuid,
+		Userid:      uuid,
+		Title:       "this is created ticket query",
+		Description: "newly created ticket",
+		Reward:      "newly created ticket",
+		Lifespan:    time,
+		Type:        "service",
+		Archived:    false,
+		Status:      "updated!",
+		Claimed:     false,
+	}
+
+	return TicketToTicketMessage(&newTicket)
 }

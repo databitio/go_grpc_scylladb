@@ -11,12 +11,6 @@ import (
 	"github.com/scylladb/gocqlx/v2/qb"
 )
 
-//perhaps future cqlx session object
-type Gosess struct {
-	Session gocqlx.Session
-}
-
-//*************************************************************************
 func CreateTicket(session gocqlx.Session, newTicket *datatypes.Ticket) error {
 
 	insertTicket := qb.Insert("meed.ticket").
@@ -31,7 +25,6 @@ func CreateTicket(session gocqlx.Session, newTicket *datatypes.Ticket) error {
 			"archived",
 			"status",
 			"claimed").Query(session)
-
 	insertTicket.BindStruct(*newTicket)
 
 	if err := insertTicket.ExecRelease(); err != nil {
@@ -41,8 +34,6 @@ func CreateTicket(session gocqlx.Session, newTicket *datatypes.Ticket) error {
 	return nil
 }
 
-//*************************************************************************
-//Get ticket by id
 func GetByID(session gocqlx.Session, uuid gocql.UUID) (datatypes.Ticket, error) {
 	q := qb.Select("meed.ticket").Where(qb.Eq("ticketid")).Query(session).Bind(uuid.String())
 
@@ -54,8 +45,6 @@ func GetByID(session gocqlx.Session, uuid gocql.UUID) (datatypes.Ticket, error) 
 	return ticket, err
 }
 
-//*************************************************************************
-//Get all tickets in the ticket table
 func GetAllTickets(session gocqlx.Session) ([]datatypes.Ticket, error) {
 
 	q := qb.Select("meed.ticket").Query(session)
@@ -73,12 +62,7 @@ func GetAllTickets(session gocqlx.Session) ([]datatypes.Ticket, error) {
 	return tickets, nil
 }
 
-//*************************************************************************
-//Update a ticket by ticketid, userid, and serverid
 func UpdateTicket(session gocqlx.Session, ticket *datatypes.Ticket) error {
-	// w := qb.EqNamed("ticketid", "")
-	// x := qb.EqNamed("serverid", "")
-	// y := qb.EqNamed("userid", "")
 	q := qb.Update("meed.ticket").
 		Set(
 			"title",
@@ -116,8 +100,6 @@ func UpdateTicket(session gocqlx.Session, ticket *datatypes.Ticket) error {
 	return nil
 }
 
-//*************************************************************************
-//Delete a ticket by ticketid
 func DeleteTicket(session gocqlx.Session, uuid gocql.UUID) error {
 
 	w := qb.EqNamed("ticketid", uuid.String())
@@ -132,8 +114,6 @@ func DeleteTicket(session gocqlx.Session, uuid gocql.UUID) error {
 	return nil
 }
 
-//*************************************************************************
-//Create new ticket table
 func CreateTicketTable(session gocqlx.Session) error {
 	DeleteTicketTable(session)
 
@@ -165,8 +145,6 @@ func CreateTicketTable(session gocqlx.Session) error {
 	return nil
 }
 
-//*************************************************************************
-// Deletes ticket table
 func DeleteTicketTable(session gocqlx.Session) error {
 	err := session.ExecStmt(`DROP KEYSPACE meed`)
 	if err != nil {
@@ -174,18 +152,3 @@ func DeleteTicketTable(session gocqlx.Session) error {
 	}
 	return nil
 }
-
-//*************************************************************************
-// func SelectTicketByLocalID(session gocqlx.Session, ticketTable *table.Table, uuid gocql.UUID) {
-// 	ticketrows := ticketTable.SelectQuery(session)
-// 	ticketrows.BindStruct(&datatypes.Ticket{
-// 		Ticketid: uuid,
-// 	})
-// 	var tickets []datatypes.Ticket
-
-// 	if err := ticketrows.Select(&tickets); err != nil {
-// 		log.Fatal("Select() failed:", err)
-// 	}
-// 	fmt.Println(tickets)
-// 	fmt.Println("selected correctly!")
-// }

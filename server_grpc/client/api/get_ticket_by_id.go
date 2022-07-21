@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"context"
@@ -10,10 +10,14 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func goUpdateTicket(c pb.TicketServiceClient, in *pb.TicketInfo) (*pb.TicketID, error) {
-	fmt.Println("goUpdateTicket client was invoked")
+func GoGetTicket(c pb.TicketServiceClient, id string) *pb.TicketInfo {
+	fmt.Println("getTicket client was invoked")
 
-	res, err := c.UpdateTicket(context.Background(), in)
+	req := &pb.TicketID{
+		Result: id,
+	}
+	res, err := c.GetTicket(context.Background(), req)
+
 	if err != nil {
 		e, ok := status.FromError(err)
 
@@ -22,8 +26,8 @@ func goUpdateTicket(c pb.TicketServiceClient, in *pb.TicketInfo) (*pb.TicketID, 
 			log.Printf("Error code from server: %s\n", e.Code())
 		} else {
 			log.Fatalf("A non GRPC error: %v\n", err)
-			return nil, err
+			return nil
 		}
 	}
-	return res, nil
+	return res
 }

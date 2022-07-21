@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	pb "github.com/databitio/go_server/server_grpc/proto"
 )
 
-func readTickets(c pb.TicketServiceClient) []*pb.TicketInfo {
+func GoReadTickets(c pb.TicketServiceClient) []*pb.TicketInfo {
 	fmt.Println("readTickets client was invoked")
 
 	var allTickets []*pb.TicketInfo

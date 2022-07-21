@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"fmt"
@@ -10,12 +10,14 @@ import (
 
 	"github.com/databitio/go_server/queries"
 	pb "github.com/databitio/go_server/server_grpc/proto"
+	"github.com/databitio/go_server/server_grpc/server/db"
+	"github.com/databitio/go_server/server_grpc/server/utils"
 )
 
-func (s *Server) ReadTickets(in *emptypb.Empty, stream pb.TicketService_ReadTicketsServer) error {
+func (s *GoServer) ReadTickets(in *emptypb.Empty, stream pb.TicketService_ReadTicketsServer) error {
 	log.Println("ReadTickets was invoked")
 
-	tickets, err := queries.GetAllTickets(session)
+	tickets, err := queries.GetAllTickets(db.Session)
 	log.Println("Exited query")
 
 	if err != nil {
@@ -26,7 +28,7 @@ func (s *Server) ReadTickets(in *emptypb.Empty, stream pb.TicketService_ReadTick
 	}
 
 	for _, ticket := range tickets {
-		newTicket := ticketToTicketMessage(&ticket)
+		newTicket := utils.TicketToTicketMessage(&ticket)
 		stream.Send(newTicket)
 	}
 
